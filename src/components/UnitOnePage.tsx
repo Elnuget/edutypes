@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import type { LessonExercise, UnitLesson } from '../data/unit-one';
+import { useEffect, useMemo, useState } from 'react';
+import type { LessonExercise, LessonContentBlock, UnitLesson } from '../data/unit-one';
 import {
   getCompletedLessonsCount,
   getNextLesson,
@@ -16,7 +16,31 @@ type UnitOnePageProps = {
   onCompleteLesson: (lessonId: string) => void;
   onResetProgress: () => void;
   onSelectLesson: (lessonId: string) => void;
+  onSetLessonStage: (lessonId: string, stageIndex: number) => void;
 };
+
+type LessonStage =
+  | {
+      id: string;
+      kind: 'intro';
+      label: string;
+      title: string;
+      body: string[];
+    }
+  | {
+      id: string;
+      kind: 'content';
+      label: string;
+      title: string;
+      body: string[];
+      code?: string;
+    }
+  | {
+      id: string;
+      kind: 'exercise';
+      label: string;
+      exercise: LessonExercise;
+    };
 
 function normalizeCode(value: string) {
   return value.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -38,6 +62,36 @@ function validateExercise(exercise: LessonExercise, value: string) {
   return null;
 }
 
+function buildLessonStages(lesson: UnitLesson): LessonStage[] {
+  const introStage: LessonStage = {
+    id: `${lesson.id}-intro`,
+    kind: 'intro',
+    label: 'Inicio',
+    title: lesson.title,
+    body: [lesson.summary, lesson.goal],
+  };
+
+  const contentStages: LessonStage[] = lesson.content.map(
+    (block: LessonContentBlock, index) => ({
+      id: `${lesson.id}-content-${index}`,
+      kind: 'content',
+      label: `Bloque ${index + 1}`,
+      title: block.title,
+      body: block.body,
+      code: block.code,
+    }),
+  );
+
+  const exerciseStages: LessonStage[] = lesson.exercises.map((exercise, index) => ({
+    id: `${lesson.id}-exercise-${index}`,
+    kind: 'exercise',
+    label: `Practica ${index + 1}`,
+    exercise,
+  }));
+
+  return [introStage, ...contentStages, ...exerciseStages];
+}
+
 function UnitOnePage({
   lessons,
   progress,
@@ -46,20 +100,37 @@ function UnitOnePage({
   onCompleteLesson,
   onResetProgress,
   onSelectLesson,
+  onSetLessonStage,
 }: UnitOnePageProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [pasteNotice, setPasteNotice] = useState<string | null>(null);
 
   const activeLesson =
     lessons.find((lesson) => lesson.id === progress.activeLessonId) ?? lessons[0];
+  const stages = useMemo(() => buildLessonStages(activeLesson), [activeLesson]);
+  const savedStageIndex = progress.stageIndexes[activeLesson.id] ?? 0;
+  const activeStageIndex = Math.min(savedStageIndex, stages.length - 1);
+  const activeStage = stages[activeStageIndex];
   const completedLessons = getCompletedLessonsCount(lessons, progress);
   const nextLesson = getNextLesson(lessons, activeLesson.id);
+  const isLastStage = activeStageIndex === stages.length - 1;
 
   useEffect(() => {
     setPasteNotice(null);
-  }, [activeLesson.id]);
+    setFeedback(null);
+  }, [activeLesson.id, activeStageIndex]);
 
-  const handleCompleteLesson = () => {
+  const goToStage = (index: number) => {
+    const boundedIndex = Math.max(0, Math.min(index, stages.length - 1));
+    onSetLessonStage(activeLesson.id, boundedIndex);
+  };
+
+  const handlePrimaryAction = () => {
+    if (!isLastStage) {
+      goToStage(activeStageIndex + 1);
+      return;
+    }
+
     for (const exercise of activeLesson.exercises) {
       const draft = progress.drafts[activeLesson.id]?.[exercise.id] ?? '';
       const error = validateExercise(exercise, draft);
@@ -73,148 +144,78 @@ function UnitOnePage({
     onCompleteLesson(activeLesson.id);
 
     if (nextLesson) {
-      setFeedback(
-        `Leccion completada. Se desbloqueo ${nextLesson.step}. ${nextLesson.title}.`,
-      );
+      setFeedback(`Leccion completada. Sigue con ${nextLesson.title}.`);
       return;
     }
 
-    setFeedback('Unidad 1 completada. Ya cubriste toda la base practica inicial.');
+    setFeedback('Unidad 1 completada.');
   };
 
   return (
-    <div className="page-shell">
-      <header className="lesson-hero">
-        <nav className="topbar">
-          <button className="button button--ghost" onClick={onBack}>
-            Volver al mapa
-          </button>
-          <span className="tag">Unidad 1 en progreso</span>
-        </nav>
-
-        <div className="lesson-hero__grid">
-          <div className="lesson-hero__copy">
-            <p className="eyebrow">Unidad 1</p>
-            <h1>Fundamentos del lenguaje</h1>
-            <p className="hero__description">
-              Esta unidad se estudia en orden. Cada leccion tiene contenido breve
-              y una practica escrita que debe resolverse tecleando codigo.
-            </p>
-          </div>
-
-          <div className="lesson-hero__stats">
-            <div className="stat-card">
-              <strong>{completedLessons}</strong>
-              <span>lecciones completadas</span>
-            </div>
-            <div className="stat-card">
-              <strong>{lessons.length - completedLessons}</strong>
-              <span>lecciones pendientes</span>
-            </div>
-            <div className="stat-card">
-              <strong>localStorage</strong>
-              <span>progreso persistente</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="lesson-layout">
-        <aside className="lesson-sidebar">
-          <div className="sidebar-card">
-            <p className="eyebrow">Secuencia</p>
-            <div className="lesson-list">
-              {lessons.map((lesson) => {
-                const unlocked = isLessonUnlocked(lessons, progress, lesson.id);
-                const completed = isLessonCompleted(progress, lesson.id);
-                const active = lesson.id === activeLesson.id;
-
-                return (
-                  <button
-                    key={lesson.id}
-                    className={`lesson-list__item ${
-                      active ? 'lesson-list__item--active' : ''
-                    }`}
-                    disabled={!unlocked}
-                    onClick={() => onSelectLesson(lesson.id)}
-                  >
-                    <span className="lesson-list__step">{lesson.step}</span>
-                    <span className="lesson-list__body">
-                      <strong>{lesson.title}</strong>
-                      <small>
-                        {completed ? 'Completada' : unlocked ? 'Disponible' : 'Bloqueada'}
-                      </small>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="sidebar-card">
-            <p className="eyebrow">Reglas</p>
-            <ul className="rules-list">
-              <li>Lee el contenido antes de escribir.</li>
-              <li>No se permite pegar codigo en la leccion.</li>
-              <li>La siguiente leccion se abre solo al completar la actual.</li>
-            </ul>
-            <button className="button button--secondary button--full" onClick={onResetProgress}>
-              Reiniciar progreso de la unidad
+    <div className="page-shell page-shell--lesson">
+      <main className="lesson-stage">
+        <section className="lesson-frame">
+          <header className="lesson-frame__top">
+            <button className="button button--ghost" onClick={onBack}>
+              Salir
             </button>
+
+            <div className="lesson-frame__status">
+              <span className="tag">Unidad 1</span>
+              <span className="lesson-frame__counter">
+                {activeStageIndex + 1}/{stages.length}
+              </span>
+            </div>
+          </header>
+
+          <div className="lesson-strip">
+            {lessons.map((lesson) => {
+              const unlocked = isLessonUnlocked(lessons, progress, lesson.id);
+              const completed = isLessonCompleted(progress, lesson.id);
+              const active = lesson.id === activeLesson.id;
+
+              return (
+                <button
+                  key={lesson.id}
+                  className={`lesson-chip ${active ? 'lesson-chip--active' : ''}`}
+                  disabled={!unlocked}
+                  onClick={() => onSelectLesson(lesson.id)}
+                >
+                  <span>{lesson.step}</span>
+                  <small>{completed ? 'ok' : unlocked ? 'lista' : 'cerrada'}</small>
+                </button>
+              );
+            })}
           </div>
-        </aside>
 
-        <section className="lesson-main">
-          <article className="lesson-card">
-            <div className="lesson-card__header">
-              <span className="unit-card__number">Leccion {activeLesson.step}</span>
-              <h2>{activeLesson.title}</h2>
-              <p>{activeLesson.summary}</p>
-            </div>
+          <article className="stage-card">
+            <div className="stage-card__label">{activeStage.label}</div>
 
-            <div className="lesson-goal">
-              <strong>Objetivo practico</strong>
-              <p>{activeLesson.goal}</p>
-            </div>
-
-            <div className="lesson-content">
-              <div className="content-heading">
-                <p className="eyebrow">Contenido</p>
-                <h3>Explicacion breve antes de escribir codigo</h3>
+            {activeStage.kind === 'intro' ? (
+              <div className="stage-card__content">
+                <h1>{activeStage.title}</h1>
+                {activeStage.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
               </div>
+            ) : null}
 
-              {activeLesson.content.map((block) => (
-                <article className="content-block" key={block.title}>
-                  <h4>{block.title}</h4>
-                  {block.body.map((paragraph) => (
-                    <p key={paragraph}>{paragraph}</p>
-                  ))}
-                  {block.code ? <pre>{block.code}</pre> : null}
-                </article>
-              ))}
-            </div>
-          </article>
+            {activeStage.kind === 'content' ? (
+              <div className="stage-card__content">
+                <h1>{activeStage.title}</h1>
+                {activeStage.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+                {activeStage.code ? <pre>{activeStage.code}</pre> : null}
+              </div>
+            ) : null}
 
-          <article className="practice-card">
-            <div className="content-heading">
-              <p className="eyebrow">Leccion escrita</p>
-              <h3>Resuelve escribiendo codigo a mano</h3>
-            </div>
-
-            <p className="practice-note">
-              El editor bloquea pegar contenido. La idea es que el estudiante
-              escriba y piense cada tipo, parametro y estructura.
-            </p>
-
-            {activeLesson.exercises.map((exercise) => (
-              <article className="exercise-card" key={exercise.id}>
-                <div className="exercise-card__header">
-                  <strong>{exercise.title}</strong>
-                  <span>Minimo {exercise.minLength} caracteres</span>
-                </div>
+            {activeStage.kind === 'exercise' ? (
+              <div className="stage-card__content stage-card__content--exercise">
+                <h1>{activeStage.exercise.title}</h1>
 
                 <ul className="exercise-card__instructions">
-                  {exercise.instructions.map((instruction) => (
+                  {activeStage.exercise.instructions.map((instruction) => (
                     <li key={instruction}>{instruction}</li>
                   ))}
                 </ul>
@@ -222,43 +223,52 @@ function UnitOnePage({
                 <textarea
                   className="code-editor"
                   spellCheck={false}
-                  value={progress.drafts[activeLesson.id]?.[exercise.id] ?? ''}
+                  value={progress.drafts[activeLesson.id]?.[activeStage.exercise.id] ?? ''}
                   onChange={(event) => {
                     setFeedback(null);
-                    onChangeDraft(activeLesson.id, exercise.id, event.target.value);
+                    onChangeDraft(activeLesson.id, activeStage.exercise.id, event.target.value);
                   }}
                   onPaste={(event) => {
                     event.preventDefault();
-                    setPasteNotice('Pegar esta desactivado. Esta leccion se resuelve solo con teclado.');
+                    setPasteNotice('Pegar esta bloqueado. Solo teclado.');
                   }}
                   onDrop={(event) => {
                     event.preventDefault();
-                    setPasteNotice('Arrastrar texto o archivos tambien esta bloqueado.');
+                    setPasteNotice('Arrastrar tambien esta bloqueado.');
                   }}
-                  placeholder={exercise.placeholder}
+                  placeholder={activeStage.exercise.placeholder}
                 />
-              </article>
-            ))}
-
-            {pasteNotice ? <p className="feedback feedback--warning">{pasteNotice}</p> : null}
-            {feedback ? <p className="feedback">{feedback}</p> : null}
-
-            <div className="practice-card__actions">
-              <button className="button button--primary" onClick={handleCompleteLesson}>
-                {isLessonCompleted(progress, activeLesson.id)
-                  ? 'Revisar nuevamente'
-                  : 'Completar y desbloquear'}
-              </button>
-
-              {nextLesson ? (
-                <span className="practice-card__next">
-                  Siguiente: {nextLesson.step}. {nextLesson.title}
-                </span>
-              ) : (
-                <span className="practice-card__next">Esta es la ultima leccion de la unidad.</span>
-              )}
-            </div>
+              </div>
+            ) : null}
           </article>
+
+          {pasteNotice ? <p className="feedback feedback--warning">{pasteNotice}</p> : null}
+          {feedback ? <p className="feedback">{feedback}</p> : null}
+
+          <footer className="lesson-frame__actions">
+            <button
+              className="button button--secondary"
+              disabled={activeStageIndex === 0}
+              onClick={() => goToStage(activeStageIndex - 1)}
+            >
+              Izquierda
+            </button>
+
+            <div className="lesson-frame__actions-meta">
+              <strong>{activeLesson.title}</strong>
+              <span>{completedLessons}/{lessons.length} lecciones completadas</span>
+            </div>
+
+            <button className="button button--primary" onClick={handlePrimaryAction}>
+              {isLastStage ? 'Completar' : 'Derecha'}
+            </button>
+          </footer>
+
+          <div className="lesson-frame__bottom">
+            <button className="button button--ghost button--full" onClick={onResetProgress}>
+              Reiniciar progreso
+            </button>
+          </div>
         </section>
       </main>
     </div>

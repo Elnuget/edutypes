@@ -80,6 +80,17 @@ function App() {
     }));
   };
 
+  const setLessonStage = (lessonId: string, stageIndex: number) => {
+    setUnitOneProgress((current) => ({
+      ...current,
+      activeLessonId: lessonId,
+      stageIndexes: {
+        ...current.stageIndexes,
+        [lessonId]: stageIndex,
+      },
+    }));
+  };
+
   const completeLesson = (lessonId: string) => {
     const lessonIndex = unitOneLessons.findIndex((lesson) => lesson.id === lessonId);
     const nextLesson = unitOneLessons[lessonIndex + 1];
@@ -92,6 +103,11 @@ function App() {
       return {
         ...current,
         completedLessonIds,
+        stageIndexes: {
+          ...current.stageIndexes,
+          [lessonId]: current.stageIndexes[lessonId] ?? 0,
+          ...(nextLesson ? { [nextLesson.id]: 0 } : {}),
+        },
         activeLessonId: nextLesson?.id ?? lessonId,
       };
     });
@@ -113,6 +129,7 @@ function App() {
         onCompleteLesson={completeLesson}
         onResetProgress={resetUnitOneProgress}
         onSelectLesson={selectLesson}
+        onSetLessonStage={setLessonStage}
       />
     );
   }
