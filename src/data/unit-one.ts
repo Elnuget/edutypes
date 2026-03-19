@@ -187,12 +187,48 @@ export const unitOneLessons: UnitLesson[] = [
         ],
       },
       {
-        title: 'Objeto tipado en linea',
+        title: 'Como leer la linea completa',
         body: [
-          'Todavia no necesitas interfaces para empezar a ganar claridad. Un objeto con tipo en linea ya te obliga a ser preciso con nombre, cantidad y estado.',
+          'En `const student: { name: string; completed: number; premium: boolean } = { ... };`, `const` crea el nombre, `student` es la variable y el primer `:` significa "ahora voy a describir su tipo".',
+          'Las primeras llaves `{ }` contienen el contrato del objeto. Dentro, cada propiedad se escribe como `nombre: tipo` y el `;` separa una propiedad tipada de la siguiente.',
         ],
         code:
           "const student: { name: string; completed: number; premium: boolean } = {\n  name: 'Ana',\n  completed: 3,\n  premium: false,\n};",
+      },
+      {
+        title: 'Tipo arriba, valor abajo',
+        body: [
+          'Despues de `=` ya no escribes el tipo esperado: escribes el objeto real. Las segundas llaves `{ }` contienen los valores concretos.',
+          "En `name: 'Ana'`, `name` es la propiedad, `:` separa propiedad y valor, y `'Ana'` es el dato real. Las comas `,` separan una propiedad con valor de la siguiente.",
+        ],
+        code:
+          "{\n  name: 'Ana',\n  completed: 3,\n  premium: false,\n}",
+      },
+      {
+        title: 'Objeto tipado en linea',
+        body: [
+          'Todavia no necesitas interfaces para empezar a ganar claridad. Un objeto con tipo en linea ya te obliga a ser preciso con nombre, cantidad y estado.',
+          'Fijate en que el mismo `:` aparece dos veces con trabajos distintos: arriba une propiedad con tipo (`name: string`) y abajo une propiedad con valor (`name: \'Ana\'`).',
+        ],
+        code:
+          "const student: { name: string; completed: number; premium: boolean } = {\n  name: 'Ana',\n  completed: 3,\n  premium: false,\n};",
+      },
+      {
+        title: 'Como leer student.name',
+        body: [
+          'Cuando escribes `student.name`, el punto `.` significa "entra al objeto `student` y toma su propiedad `name`".',
+          'Esa idea es clave: primero nombras el objeto, luego con `.` eliges la propiedad exacta que quieres leer.',
+        ],
+        code: "student.name\nstudent.completed",
+      },
+      {
+        title: 'Objeto dentro de una funcion',
+        body: [
+          'En `function printStudent(student: { name: string; completed: number }): string`, el parametro se llama `student` y despues del `:` se describe la forma exacta del objeto que puede entrar.',
+          'Los parentesis `( )` contienen la entrada, las llaves del tipo describen sus propiedades, y `: string` fuera del parentesis dice lo que la funcion devuelve al final.',
+        ],
+        code:
+          "function printStudent(student: { name: string; completed: number }): string {\n  return `${student.name} completo ${student.completed} lecciones`;\n}",
       },
     ],
     exercises: [
@@ -299,11 +335,44 @@ export const unitOneLessons: UnitLesson[] = [
           "const topics: string[] = ['variables', 'funciones', 'objetos'];\nconst scores: number[] = [10, 9, 8];",
       },
       {
+        title: 'Que significa string[]',
+        body: [
+          "En `const topics: string[] = ['variables', 'funciones'];`, `string[]` significa \"una lista donde cada posicion debe ser string\".",
+          'Los corchetes `[ ]` junto al tipo convierten ese tipo simple en una lista. El `=` separa el contrato del valor real que vas a guardar.',
+        ],
+        code: "const topics: string[] = ['variables', 'funciones'];",
+      },
+      {
+        title: 'Como leer los corchetes y comas',
+        body: [
+          'En el valor real, `[ ]` encierran todos los elementos del array. Cada coma `,` separa un elemento del siguiente.',
+          "Si escribes `['variables', 'funciones', 'objetos']`, cada texto ocupa una posicion distinta dentro de la misma lista.",
+        ],
+        code: "['variables', 'funciones', 'objetos']",
+      },
+      {
         title: 'Tuplas para pares con orden exacto',
         body: [
           'Una tupla sirve cuando el orden importa y cada posicion tiene un tipo distinto. No es una lista libre: es una estructura exacta.',
         ],
         code: "const lessonPair: [string, number] = ['arrays', 3];",
+      },
+      {
+        title: 'Como leer una tupla',
+        body: [
+          'En `[string, number]`, la primera posicion debe ser `string` y la segunda debe ser `number`. La coma `,` separa posiciones, no opciones.',
+          "Cuando escribes `['arrays', 3]`, el primer valor llena la primera posicion y el segundo valor llena la segunda. Si inviertes el orden, TypeScript marca error.",
+        ],
+        code: "const lessonPair: [string, number] = ['arrays', 3];",
+      },
+      {
+        title: 'Array como parametro',
+        body: [
+          'En `function countTopics(topics: string[]): number`, el parametro se llama `topics` y `: string[]` significa que la funcion espera una lista de textos.',
+          'El punto en `topics.length` entra al array y pide una propiedad interna llamada `length`, que devuelve cuantas posiciones tiene la lista.',
+        ],
+        code:
+          "function countTopics(topics: string[]): number {\n  return topics.length;\n}",
       },
     ],
     exercises: [
@@ -395,6 +464,24 @@ export const unitOneLessons: UnitLesson[] = [
         ],
         code:
           "const lesson: { title: string; duration: number; published: boolean } = {\n  title: 'Fundamentos',\n  duration: 45,\n  published: true,\n};\n\nconst tags: string[] = ['typescript', 'basico'];",
+      },
+      {
+        title: 'Como leer el bloque integrado',
+        body: [
+          'Primero declaras un objeto `lesson` con su contrato arriba y sus valores abajo. Despues declaras `tags` como `string[]`, o sea una lista de textos.',
+          'La idea no es memorizar la forma completa: debes reconocer que cada simbolo ya lo viste antes. `:` une nombre con tipo o valor, `{ }` encierran objetos, `[ ]` encierran listas y `=` conecta definicion con dato real.',
+        ],
+        code:
+          "const lesson: { title: string; duration: number; published: boolean } = {\n  title: 'Fundamentos',\n  duration: 45,\n  published: true,\n};\n\nconst tags: string[] = ['typescript', 'basico'];",
+      },
+      {
+        title: 'Como leer la funcion final',
+        body: [
+          'En `function summarizeLesson(title: string, duration: number, tags: string[]): string`, cada coma separa parametros y cada parametro repite la misma estructura: `nombre: tipo`.',
+          "Dentro del `return`, `tags.join(', ')` usa el punto `.` para entrar al array `tags` y ejecutar `join`, que une sus elementos en un solo texto.",
+        ],
+        code:
+          "function summarizeLesson(title: string, duration: number, tags: string[]): string {\n  return `${title} dura ${duration} minutos y usa ${tags.join(', ')}`;\n}",
       },
     ],
     exercises: [
