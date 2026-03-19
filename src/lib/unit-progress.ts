@@ -5,6 +5,7 @@ export type UnitProgress = {
   completedLessonIds: string[];
   drafts: Record<string, Record<string, string>>;
   stageIndexes: Record<string, number>;
+  validatedExercises: Record<string, Record<string, boolean>>;
 };
 
 const UNIT_ONE_STORAGE_KEY = 'edutypes.unit-01.progress';
@@ -15,6 +16,7 @@ export function createInitialProgress(firstLessonId: string): UnitProgress {
     completedLessonIds: [],
     drafts: {},
     stageIndexes: {},
+    validatedExercises: {},
   };
 }
 
@@ -61,12 +63,17 @@ function normalizeProgress(
     value.stageIndexes && typeof value.stageIndexes === 'object'
       ? value.stageIndexes
       : initial.stageIndexes;
+  const validatedExercises =
+    value.validatedExercises && typeof value.validatedExercises === 'object'
+      ? value.validatedExercises
+      : initial.validatedExercises;
 
   return {
     activeLessonId,
     completedLessonIds,
     drafts,
     stageIndexes,
+    validatedExercises,
   };
 }
 

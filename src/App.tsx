@@ -66,6 +66,13 @@ function App() {
           [exerciseId]: value,
         },
       },
+      validatedExercises: {
+        ...current.validatedExercises,
+        [lessonId]: {
+          ...current.validatedExercises[lessonId],
+          [exerciseId]: false,
+        },
+      },
     }));
   };
 
@@ -87,6 +94,23 @@ function App() {
       stageIndexes: {
         ...current.stageIndexes,
         [lessonId]: stageIndex,
+      },
+    }));
+  };
+
+  const setExerciseValidated = (
+    lessonId: string,
+    exerciseId: string,
+    validated: boolean,
+  ) => {
+    setUnitOneProgress((current) => ({
+      ...current,
+      validatedExercises: {
+        ...current.validatedExercises,
+        [lessonId]: {
+          ...current.validatedExercises[lessonId],
+          [exerciseId]: validated,
+        },
       },
     }));
   };
@@ -130,6 +154,7 @@ function App() {
         onResetProgress={resetUnitOneProgress}
         onSelectLesson={selectLesson}
         onSetLessonStage={setLessonStage}
+        onSetExerciseValidated={setExerciseValidated}
       />
     );
   }

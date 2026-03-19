@@ -364,11 +364,21 @@ pre {
   margin: 0;
   padding: 12px 14px;
   border-radius: 16px;
+  background: #edf7f1;
+  border: 1px solid #cfe6d8;
   color: var(--success);
 }
 
 .feedback--warning {
+  background: #fff5e7;
+  border-color: #efd4a7;
   color: var(--warning);
+}
+
+.feedback--error {
+  background: #fff0ee;
+  border-color: #e8b8b1;
+  color: #b24536;
 }
 
 .lesson-frame__actions {

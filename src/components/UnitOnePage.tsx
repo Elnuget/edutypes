@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { LessonExercise, LessonContentBlock, UnitLesson } from '../data/unit-one';
+import type {
+  LessonExercise,
+  LessonContentBlock,
+  UnitLesson,
+} from '../data/unit-one';
+import { validateExerciseWithCompiler } from '../lib/exercise-validator';
 import {
   getCompletedLessonsCount,
   getNextLesson,
@@ -17,6 +22,11 @@ type UnitOnePageProps = {
   onResetProgress: () => void;
   onSelectLesson: (lessonId: string) => void;
   onSetLessonStage: (lessonId: string, stageIndex: number) => void;
+  onSetExerciseValidated: (
+    lessonId: string,
+    exerciseId: string,
+    validated: boolean,
+  ) => void;
 };
 
 type LessonStage =
@@ -41,26 +51,6 @@ type LessonStage =
       label: string;
       exercise: LessonExercise;
     };
-
-function normalizeCode(value: string) {
-  return value.toLowerCase().replace(/\s+/g, ' ').trim();
-}
-
-function validateExercise(exercise: LessonExercise, value: string) {
-  const normalized = normalizeCode(value);
-
-  if (value.trim().length < exercise.minLength) {
-    return `Escribe mas codigo en "${exercise.title}".`;
-  }
-
-  for (const check of exercise.checks) {
-    if (!normalized.includes(check)) {
-      return `Falta una parte clave en "${exercise.title}": ${check}`;
-    }
-  }
-
-  return null;
-}
 
 function buildLessonStages(lesson: UnitLesson): LessonStage[] {
   const introStage: LessonStage = {
@@ -101,9 +91,14 @@ function UnitOnePage({
   onResetProgress,
   onSelectLesson,
   onSetLessonStage,
+  onSetExerciseValidated,
 }: UnitOnePageProps) {
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{
+    tone: 'success' | 'error';
+    text: string;
+  } | null>(null);
   const [pasteNotice, setPasteNotice] = useState<string | null>(null);
+  const [isReviewing, setIsReviewing] = useState(false);
 
   const activeLesson =
     lessons.find((lesson) => lesson.id === progress.activeLessonId) ?? lessons[0];
@@ -114,6 +109,11 @@ function UnitOnePage({
   const completedLessons = getCompletedLessonsCount(lessons, progress);
   const nextLesson = getNextLesson(lessons, activeLesson.id);
   const isLastStage = activeStageIndex === stages.length - 1;
+  const activeExercise =
+    activeStage.kind === 'exercise' ? activeStage.exercise : null;
+  const activeExerciseValidated = activeExercise
+    ? progress.validatedExercises[activeLesson.id]?.[activeExercise.id] === true
+    : false;
 
   useEffect(() => {
     setPasteNotice(null);
@@ -125,30 +125,76 @@ function UnitOnePage({
     onSetLessonStage(activeLesson.id, boundedIndex);
   };
 
-  const handlePrimaryAction = () => {
+  const handlePrimaryAction = async () => {
+    if (activeExercise && !activeExerciseValidated) {
+      const draft = progress.drafts[activeLesson.id]?.[activeExercise.id] ?? '';
+      setIsReviewing(true);
+
+      let result: Awaited<ReturnType<typeof validateExerciseWithCompiler>>;
+
+      try {
+        result = await validateExerciseWithCompiler(activeExercise.id, draft);
+      } catch {
+        setIsReviewing(false);
+        onSetExerciseValidated(activeLesson.id, activeExercise.id, false);
+        setFeedback({
+          tone: 'error',
+          text: 'No pude revisar tu ejercicio con el compilador en este intento.',
+        });
+        return;
+      }
+
+      setIsReviewing(false);
+
+      if (!result.ok) {
+        onSetExerciseValidated(activeLesson.id, activeExercise.id, false);
+
+        const parts: string[] = [];
+
+        parts.push(
+          result.compilerOk
+            ? 'Compilacion TypeScript: correcta.'
+            : `Compilacion TypeScript: incorrecta. ${result.compilerErrors.join(' ')}`,
+        );
+
+        if (result.ruleErrors.length > 0) {
+          parts.push(`Objetivo del ejercicio: ${result.ruleErrors.join(' ')}`);
+        }
+
+        setFeedback({
+          tone: 'error',
+          text: parts.join(' '),
+        });
+        return;
+      }
+
+      onSetExerciseValidated(activeLesson.id, activeExercise.id, true);
+      setFeedback({
+        tone: 'success',
+        text: `Compilacion TypeScript: correcta. Objetivo del ejercicio: cumplido. Detecte: ${result.successes.join(', ')}.`,
+      });
+      return;
+    }
+
     if (!isLastStage) {
       goToStage(activeStageIndex + 1);
       return;
     }
 
-    for (const exercise of activeLesson.exercises) {
-      const draft = progress.drafts[activeLesson.id]?.[exercise.id] ?? '';
-      const error = validateExercise(exercise, draft);
-
-      if (error) {
-        setFeedback(error);
-        return;
-      }
-    }
-
     onCompleteLesson(activeLesson.id);
 
     if (nextLesson) {
-      setFeedback(`Leccion completada. Sigue con ${nextLesson.title}.`);
+      setFeedback({
+        tone: 'success',
+        text: `Leccion completada. Sigue con ${nextLesson.title}.`,
+      });
       return;
     }
 
-    setFeedback('Unidad 1 completada.');
+    setFeedback({
+      tone: 'success',
+      text: 'Unidad 1 completada.',
+    });
   };
 
   return (
@@ -243,12 +289,16 @@ function UnitOnePage({
           </article>
 
           {pasteNotice ? <p className="feedback feedback--warning">{pasteNotice}</p> : null}
-          {feedback ? <p className="feedback">{feedback}</p> : null}
+          {feedback ? (
+            <p className={`feedback ${feedback.tone === 'error' ? 'feedback--error' : ''}`}>
+              {feedback.text}
+            </p>
+          ) : null}
 
           <footer className="lesson-frame__actions">
             <button
               className="button button--secondary"
-              disabled={activeStageIndex === 0}
+              disabled={activeStageIndex === 0 || isReviewing}
               onClick={() => goToStage(activeStageIndex - 1)}
             >
               Izquierda
@@ -256,11 +306,33 @@ function UnitOnePage({
 
             <div className="lesson-frame__actions-meta">
               <strong>{activeLesson.title}</strong>
-              <span>{completedLessons}/{lessons.length} lecciones completadas</span>
+              <span>
+                {activeExercise
+                  ? activeExerciseValidated
+                    ? 'ejercicio validado'
+                    : 'primero revisa este ejercicio'
+                  : `${completedLessons}/${lessons.length} lecciones completadas`}
+              </span>
             </div>
 
-            <button className="button button--primary" onClick={handlePrimaryAction}>
-              {isLastStage ? 'Completar' : 'Derecha'}
+            <button
+              className="button button--primary"
+              disabled={isReviewing}
+              onClick={() => {
+                void handlePrimaryAction();
+              }}
+            >
+              {activeExercise
+                ? isReviewing
+                  ? 'Revisando...'
+                  : activeExerciseValidated
+                  ? isLastStage
+                    ? 'Completar'
+                    : 'Derecha'
+                  : 'Revisar'
+                : isLastStage
+                  ? 'Completar'
+                  : 'Derecha'}
             </button>
           </footer>
 
