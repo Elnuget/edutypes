@@ -61,25 +61,35 @@ function buildLessonStages(lesson: UnitLesson): LessonStage[] {
     body: [lesson.summary, lesson.goal],
   };
 
-  const contentStages: LessonStage[] = lesson.content.map(
-    (block: LessonContentBlock, index) => ({
-      id: `${lesson.id}-content-${index}`,
-      kind: 'content',
-      label: `Bloque ${index + 1}`,
-      title: block.title,
-      body: block.body,
-      code: block.code,
-    }),
-  );
+  const learningStages: LessonStage[] = [];
+  const totalPairs = Math.max(lesson.content.length, lesson.exercises.length);
 
-  const exerciseStages: LessonStage[] = lesson.exercises.map((exercise, index) => ({
-    id: `${lesson.id}-exercise-${index}`,
-    kind: 'exercise',
-    label: `Practica ${index + 1}`,
-    exercise,
-  }));
+  for (let index = 0; index < totalPairs; index += 1) {
+    const block: LessonContentBlock | undefined = lesson.content[index];
+    const exercise: LessonExercise | undefined = lesson.exercises[index];
 
-  return [introStage, ...contentStages, ...exerciseStages];
+    if (block) {
+      learningStages.push({
+        id: `${lesson.id}-content-${index}`,
+        kind: 'content',
+        label: `Tarjeta ${index + 1}`,
+        title: block.title,
+        body: block.body,
+        code: block.code,
+      });
+    }
+
+    if (exercise) {
+      learningStages.push({
+        id: `${lesson.id}-exercise-${index}`,
+        kind: 'exercise',
+        label: `Ejercicio ${index + 1}`,
+        exercise,
+      });
+    }
+  }
+
+  return [introStage, ...learningStages];
 }
 
 function UnitOnePage({

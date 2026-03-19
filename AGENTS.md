@@ -29,3 +29,5 @@
 - Lessons should be practical and code-first.
 - The student must type code manually; do not enable paste for lesson writing areas unless the user explicitly changes that requirement.
 - Every lesson should keep content brief, actionable, and easy to consume in short sessions.
+- New EduTypes lessons should default to an alternating `tarjeta -> ejercicio -> tarjeta -> ejercicio` flow instead of stacking many explanation cards first.
+- Explanations must use very simple language and explicitly say what each symbol does when introducing new syntax.
