@@ -42,24 +42,22 @@ export const unitOneLessons: UnitLesson[] = [
     id: 'u1-l1',
     step: '1',
     title: 'Const, let y function',
-    summary:
-      'Aprendes a leer una linea simple y una funcion simple.',
-    goal:
-      'Saber que hace cada parte antes de escribirla.',
+    summary: 'Lees variables y funciones sin memorizar de mas.',
+    goal: 'Entender [[nombre]], [[tipo]], [[=]] y [[return]].',
     content: [
       {
         title: 'Tarjeta 1: const y let',
         body: [
-          '`const` crea un dato que no quieres cambiar. `let` crea un dato que si puede cambiar despues.',
-          'En `const moduleName: string = \'Unidad 1\';`, `moduleName` es el nombre, `: string` es el tipo, `=` conecta con el valor y `;` cierra la linea.',
+          '[[const]] crea un dato fijo. [[let]] crea un dato que puede cambiar.',
+          "En `const moduleName: string = 'Unidad 1';`, [[moduleName]] es el nombre, [[string]] es el tipo y [[=]] une con el valor.",
         ],
         code: "const moduleName: string = 'Unidad 1';\nlet totalExercises: number = 6;",
       },
       {
         title: 'Tarjeta 2: function',
         body: [
-          '`function` crea una accion con nombre. Los parentesis `( )` guardan lo que entra y las llaves `{ }` guardan el codigo.',
-          'En `function greetStudent(name: string): string { ... }`, `name: string` es la entrada, `: string` fuera del parentesis es lo que devuelve y `return` es lo que entrega.',
+          '[[function]] crea una accion con nombre. `()` guarda lo que entra y `{}` guarda el bloque de codigo.',
+          'En `function greetStudent(name: string): string { ... }`, [[name: string]] es la entrada, [[string]] es lo que sale y [[return]] entrega el resultado.',
         ],
         code:
           "function greetStudent(name: string, level: number): string {\n  return `${name} esta en el nivel ${level}`;\n}",
@@ -67,78 +65,117 @@ export const unitOneLessons: UnitLesson[] = [
     ],
     exercises: [
       {
-        id: 'typed-variables',
-        title: 'Ejercicio 1: variables tipadas',
+        id: 'u1-l1-c1-e1',
+        title: 'Ejercicio 1: escribe moduleName',
         instructions: [
-          'Escribe primero una linea con `const` para un texto fijo llamado `moduleName`.',
-          'Despues escribe una linea con `let` para un numero llamado `totalExercises`.',
-          'Termina con otra linea que use `let` o `const` para un booleano llamado `hasCertificate`.',
+          'Escribe una sola linea con [[const]].',
+          'El nombre debe ser `moduleName` y el tipo debe ser `string`.',
         ],
-        placeholder:
-          "const moduleName: string = 'Unidad 1';\nlet totalExercises: number = 6;\nlet hasCertificate: boolean = true;",
-        minLength: 80,
+        placeholder: "const moduleName: string = 'Unidad 1';",
+        minLength: 30,
         checks: [
           {
             kind: 'includes',
-            needle: 'const modulename: string',
-            success: 'declaraste una constante con nombre y tipo string',
-            error: 'falta una declaracion de `moduleName` usando `const` y tipo `string`.',
+            needle: 'const modulename: string =',
+            success: 'escribiste `moduleName` con `const` y tipo `string`',
+            error: 'falta `const moduleName: string = ...`.',
           },
+        ],
+      },
+      {
+        id: 'u1-l1-c1-e2',
+        title: 'Ejercicio 2: numero y booleano',
+        instructions: [
+          'Escribe una linea para `totalExercises` con [[let]] y tipo `number`.',
+          'Debajo escribe otra linea para `hasCertificate` con tipo `boolean`.',
+        ],
+        placeholder: '',
+        minLength: 45,
+        checks: [
           {
             kind: 'includes',
             needle: 'let totalexercises: number',
-            success: 'declaraste una variable numerica con `let`',
-            error: 'falta `totalExercises` con tipo `number` usando `let`.',
+            success: 'escribiste `totalExercises` como `number`',
+            error: 'falta `let totalExercises: number = ...`.',
           },
           {
             kind: 'oneOf',
             needles: ['let hascertificate: boolean', 'const hascertificate: boolean'],
-            success: 'declaraste el booleano `hasCertificate`',
+            success: 'escribiste `hasCertificate` como `boolean`',
             error: 'falta `hasCertificate` con tipo `boolean`.',
           },
         ],
       },
       {
-        id: 'typed-function',
-        title: 'Ejercicio 2: funcion con tipos',
+        id: 'u1-l1-c2-e1',
+        title: 'Ejercicio 3: firma de la funcion',
         instructions: [
-          'Escribe la palabra `function`, luego el nombre `greetStudent`.',
-          'Dentro de parentesis agrega `name: string` y `level: number`.',
-          'Despues del parentesis indica que devuelve `string` y usa `return` dentro de las llaves.',
+          'Escribe la funcion `greetStudent`.',
+          'Debe recibir `name: string` y `level: number`.',
         ],
         placeholder:
-          "function greetStudent(name: string, level: number): string {\n  return `${name} esta en el nivel ${level}`;\n}",
-        minLength: 90,
+          "function greetStudent(name: string, level: number): string {\n  return '';\n}",
+        minLength: 70,
         checks: [
           {
             kind: 'includes',
             needle: 'function greetstudent',
-            success: 'escribiste la palabra `function` y el nombre de la funcion',
-            error: 'falta declarar la funcion `greetStudent`.',
+            success: 'escribiste el nombre de la funcion',
+            error: 'falta la funcion `greetStudent`.',
           },
           {
             kind: 'includes',
             needle: 'name: string',
-            success: 'tipaste el parametro `name`',
-            error: 'falta el parametro `name: string`.',
+            success: 'agregaste `name: string`',
+            error: 'falta `name: string`.',
           },
           {
             kind: 'includes',
             needle: 'level: number',
-            success: 'tipaste el parametro `level`',
-            error: 'falta el parametro `level: number`.',
+            success: 'agregaste `level: number`',
+            error: 'falta `level: number`.',
           },
           {
             kind: 'includes',
             needle: '): string',
-            success: 'definiste el tipo de retorno',
-            error: 'falta indicar que la funcion devuelve `string`.',
+            success: 'marcaste retorno `string`',
+            error: 'falta `): string`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c2-e2',
+        title: 'Ejercicio 4: return real',
+        instructions: [
+          'Vuelve a escribir `greetStudent` completa.',
+          'Dentro usa [[return]] y menciona `name` y `level` en el texto.',
+        ],
+        placeholder: '',
+        minLength: 80,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function greetstudent',
+            success: 'la funcion existe',
+            error: 'falta la funcion `greetStudent`.',
           },
           {
             kind: 'includes',
             needle: 'return',
-            success: 'incluiste `return` dentro de la funcion',
-            error: 'falta la sentencia `return` dentro de la funcion.',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'name',
+            success: 'usas `name`',
+            error: 'falta usar `name` dentro del resultado.',
+          },
+          {
+            kind: 'includes',
+            needle: 'level',
+            success: 'usas `level`',
+            error: 'falta usar `level` dentro del resultado.',
           },
         ],
       },
@@ -148,16 +185,14 @@ export const unitOneLessons: UnitLesson[] = [
     id: 'u1-l2',
     step: '2',
     title: 'Objetos como contratos basicos',
-    summary:
-      'Aprendes a escribir un objeto y a leer sus propiedades.',
-    goal:
-      'Saber como se arma un objeto paso a paso.',
+    summary: 'Aprendes a juntar varios datos en un objeto.',
+    goal: 'Entender [[{}]], [[name: string]] y [[student.name]].',
     content: [
       {
         title: 'Tarjeta 1: como se escribe un objeto',
         body: [
-          'Un objeto junta varios datos bajo un solo nombre. En `student`, guardas varias propiedades en una sola estructura.',
-          'Las primeras llaves del tipo dicen que propiedades esperas. Las llaves de abajo guardan los valores reales. `name: string` significa propiedad `name` de tipo texto.',
+          'Un objeto junta varios datos bajo un solo nombre. Aqui todo vive dentro de [[student]].',
+          'Las llaves del tipo dicen que esperas. Las llaves de abajo guardan los valores reales. [[name: string]] significa propiedad `name` de tipo texto.',
         ],
         code:
           "const student: { name: string; completed: number; premium: boolean } = {\n  name: 'Ana',\n  completed: 3,\n  premium: false,\n};",
@@ -165,8 +200,8 @@ export const unitOneLessons: UnitLesson[] = [
       {
         title: 'Tarjeta 2: como leer student.name',
         body: [
-          'El punto `.` sirve para entrar a una propiedad. `student.name` significa: entra a `student` y toma `name`.',
-          'En una funcion puedes pedir un objeto completo como entrada. Asi TypeScript revisa que entren las propiedades correctas.',
+          'El punto `.` sirve para entrar a una propiedad. [[student.name]] significa: entra a `student` y toma `name`.',
+          'Una funcion tambien puede pedir un objeto entero como entrada. Asi TypeScript revisa si el objeto tiene lo correcto.',
         ],
         code:
           "function printStudent(student: { name: string; completed: number }): string {\n  return `${student.name} completo ${student.completed} lecciones`;\n}",
@@ -174,84 +209,124 @@ export const unitOneLessons: UnitLesson[] = [
     ],
     exercises: [
       {
-        id: 'student-object',
-        title: 'Ejercicio 1: crea un objeto student',
+        id: 'u1-l2-c1-e1',
+        title: 'Ejercicio 1: tipo del objeto',
         instructions: [
-          'Declara una constante `student` con las propiedades `name`, `completed` y `premium`.',
-          'Tipa `name` como `string`, `completed` como `number` y `premium` como `boolean`.',
-          'Asigna valores coherentes al objeto.',
+          'Escribe `student` con tipo de objeto.',
+          'Debe tener `name`, `completed` y `premium`.',
         ],
         placeholder:
           "const student: { name: string; completed: number; premium: boolean } = {\n  name: 'Laura',\n  completed: 4,\n  premium: true,\n};",
-        minLength: 130,
+        minLength: 90,
         checks: [
           {
             kind: 'includes',
             needle: 'const student: { name: string; completed: number; premium: boolean }',
-            success: 'tipaste el objeto `student` con las tres propiedades',
+            success: 'el tipo de `student` esta completo',
             error: 'falta tipar `student` con `name`, `completed` y `premium`.',
-          },
-          {
-            kind: 'includes',
-            needle: 'name:',
-            success: 'incluiste la propiedad `name`',
-            error: 'falta la propiedad `name` dentro del objeto.',
-          },
-          {
-            kind: 'includes',
-            needle: 'completed:',
-            success: 'incluiste la propiedad `completed`',
-            error: 'falta la propiedad `completed` dentro del objeto.',
-          },
-          {
-            kind: 'includes',
-            needle: 'premium:',
-            success: 'incluiste la propiedad `premium`',
-            error: 'falta la propiedad `premium` dentro del objeto.',
           },
         ],
       },
       {
-        id: 'student-summary',
-        title: 'Ejercicio 2: funcion que consume un objeto',
+        id: 'u1-l2-c1-e2',
+        title: 'Ejercicio 2: valores del objeto',
         instructions: [
-          'Escribe una funcion `printStudent` que reciba un parametro `student` con `name` y `completed`.',
-          'La funcion debe devolver un texto indicando cuantas lecciones completo el estudiante.',
-          'No uses `any` ni dejes el parametro sin tipo.',
+          'Escribe otra vez el objeto `student` completo.',
+          'Agrega valores para `name`, `completed` y `premium`.',
+        ],
+        placeholder: '',
+        minLength: 90,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const student:',
+            success: 'mantienes la declaracion de `student`',
+            error: 'falta declarar `student` con `const`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'name:',
+            success: 'agregaste `name`',
+            error: 'falta la propiedad `name`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'completed:',
+            success: 'agregaste `completed`',
+            error: 'falta la propiedad `completed`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'premium:',
+            success: 'agregaste `premium`',
+            error: 'falta la propiedad `premium`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c2-e1',
+        title: 'Ejercicio 3: firma de printStudent',
+        instructions: [
+          'Escribe la funcion `printStudent`.',
+          'El parametro `student` debe tener `name` y `completed`.',
         ],
         placeholder:
-          "function printStudent(student: { name: string; completed: number }): string {\n  return `${student.name} completo ${student.completed} lecciones`;\n}",
-        minLength: 120,
+          "function printStudent(student: { name: string; completed: number }): string {\n  return '';\n}",
+        minLength: 75,
         checks: [
           {
             kind: 'includes',
             needle: 'function printstudent',
-            success: 'nombraste la funcion `printStudent`',
-            error: 'falta declarar la funcion `printStudent`.',
+            success: 'escribiste `printStudent`',
+            error: 'falta `printStudent`.',
           },
           {
             kind: 'includes',
             needle: 'student: { name: string; completed: number }',
             success: 'tipaste el parametro `student`',
-            error: 'falta tipar el parametro `student` con `name` y `completed`.',
+            error: 'falta el tipo del parametro `student`.',
           },
           {
             kind: 'includes',
             needle: '): string',
-            success: 'definiste el retorno como string',
-            error: 'falta indicar que la funcion devuelve `string`.',
+            success: 'marcaste retorno `string`',
+            error: 'falta `): string`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c2-e2',
+        title: 'Ejercicio 4: usa student.name',
+        instructions: [
+          'Escribe otra vez `printStudent` completa.',
+          'Dentro usa [[student.name]] y [[student.completed]].',
+        ],
+        placeholder: '',
+        minLength: 85,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function printstudent',
+            success: 'la funcion existe',
+            error: 'falta `printStudent`.',
           },
           {
             kind: 'includes',
             needle: 'student.name',
-            success: 'usas `student.name` en el resultado',
-            error: 'falta usar `student.name` dentro del `return`.',
+            success: 'usas `student.name`',
+            error: 'falta `student.name`.',
           },
           {
             kind: 'includes',
             needle: 'student.completed',
-            success: 'usas `student.completed` en el resultado',
-            error: 'falta usar `student.completed` dentro del `return`.',
+            success: 'usas `student.completed`',
+            error: 'falta `student.completed`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
           },
         ],
       },
@@ -261,89 +336,126 @@ export const unitOneLessons: UnitLesson[] = [
     id: 'u1-l3',
     step: '3',
     title: 'Arrays, tuplas y parametros utiles',
-    summary:
-      'Aprendes a escribir listas y pares con orden.',
-    goal:
-      'Saber cuando usar `[]` y cuando usar una tupla.',
+    summary: 'Aprendes listas y pares con orden fijo.',
+    goal: 'Entender [[[]]], comas y posiciones.',
     content: [
       {
         title: 'Tarjeta 1: arrays',
         body: [
-          '`string[]` significa lista de textos. Los corchetes `[ ]` junto al tipo convierten ese tipo en una lista.',
-          'En el valor real, los corchetes tambien encierran los elementos. Cada coma `,` separa un elemento del siguiente.',
+          '[[string[]]] significa lista de textos. `[]` junto al tipo convierte ese tipo en lista.',
+          'En el valor real, `[]` encierra los elementos y cada coma `,` separa uno del siguiente.',
         ],
         code: "const topics: string[] = ['variables', 'funciones'];",
       },
       {
         title: 'Tarjeta 2: tuplas',
         body: [
-          'Una tupla es una lista corta con orden fijo. En `[string, number]`, primero va un texto y despues un numero.',
-          "Si escribes `['funciones', 2]`, el orden importa. Si cambias el orden, TypeScript marca error.",
+          'Una tupla es una lista corta con orden fijo. En [[string, number]], primero va texto y despues numero.',
+          "Si escribes `['funciones', 2]`, el [[orden]] importa. Si lo cambias, TypeScript marca error.",
         ],
         code: "const lessonPair: [string, number] = ['funciones', 2];",
       },
     ],
     exercises: [
       {
-        id: 'topics-array',
-        title: 'Ejercicio 1: array de temas',
+        id: 'u1-l3-c1-e1',
+        title: 'Ejercicio 1: crea topics',
         instructions: [
-          'Declara una constante `topics` de tipo `string[]`.',
-          'Incluye al menos tres temas de la unidad.',
-          'Despues escribe una funcion `countTopics` que reciba `topics: string[]` y devuelva un `number`.',
+          'Escribe `topics` como lista de textos.',
+          'Debe tener al menos tres elementos.',
         ],
-        placeholder:
-          "const topics: string[] = ['variables', 'objetos', 'arrays'];\n\nfunction countTopics(topics: string[]): number {\n  return topics.length;\n}",
-        minLength: 120,
+        placeholder: "const topics: string[] = ['variables', 'objetos', 'arrays'];",
+        minLength: 55,
         checks: [
           {
             kind: 'includes',
             needle: 'const topics: string[]',
-            success: 'declaraste un array de strings',
+            success: 'escribiste `topics` como `string[]`',
             error: 'falta declarar `topics` con tipo `string[]`.',
-          },
-          {
-            kind: 'includes',
-            needle: 'function counttopics',
-            success: 'declaraste la funcion `countTopics`',
-            error: 'falta la funcion `countTopics`.',
-          },
-          {
-            kind: 'includes',
-            needle: 'topics: string[]',
-            success: 'tipaste el parametro de la funcion',
-            error: 'falta el parametro `topics: string[]` en la funcion.',
-          },
-          {
-            kind: 'includes',
-            needle: '): number',
-            success: 'la funcion devuelve number',
-            error: 'falta indicar que la funcion devuelve `number`.',
-          },
-          {
-            kind: 'includes',
-            needle: 'topics.length',
-            success: 'usas la longitud del array para contar temas',
-            error: 'falta usar `topics.length` dentro del `return`.',
           },
         ],
       },
       {
-        id: 'lesson-tuple',
-        title: 'Ejercicio 2: tupla con orden fijo',
+        id: 'u1-l3-c1-e2',
+        title: 'Ejercicio 2: cuenta temas',
         instructions: [
-          'Declara una constante `lessonPair` de tipo `[string, number]`.',
-          'En la primera posicion guarda el nombre de una leccion.',
-          'En la segunda posicion guarda su numero dentro de la unidad.',
+          'Escribe `countTopics`.',
+          'Debe recibir `topics: string[]` y devolver `number` usando `topics.length`.',
+        ],
+        placeholder: '',
+        minLength: 80,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function counttopics',
+            success: 'escribiste `countTopics`',
+            error: 'falta `countTopics`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'topics: string[]',
+            success: 'tipaste `topics`',
+            error: 'falta `topics: string[]`.',
+          },
+          {
+            kind: 'includes',
+            needle: '): number',
+            success: 'marcaste retorno `number`',
+            error: 'falta `): number`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'topics.length',
+            success: 'usas `topics.length`',
+            error: 'falta `topics.length`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c2-e1',
+        title: 'Ejercicio 3: lessonPair',
+        instructions: [
+          'Escribe `lessonPair` como tupla `[string, number]`.',
+          'Primero va un texto y despues un numero.',
         ],
         placeholder: "const lessonPair: [string, number] = ['funciones', 2];",
-        minLength: 50,
+        minLength: 45,
         checks: [
           {
             kind: 'includes',
             needle: 'const lessonpair: [string, number]',
-            success: 'declaraste la tupla con el orden correcto',
-            error: 'falta declarar `lessonPair` como tupla `[string, number]`.',
+            success: 'escribiste la tupla `lessonPair`',
+            error: 'falta `const lessonPair: [string, number] = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c2-e2',
+        title: 'Ejercicio 4: otra tupla',
+        instructions: [
+          'Escribe otra tupla `[string, number]` con nombre distinto.',
+          'Debe mantener el mismo orden: texto y luego numero.',
+        ],
+        placeholder: '',
+        minLength: 40,
+        checks: [
+          {
+            kind: 'includes',
+            needle: ': [string, number] =',
+            success: 'mantuviste el tipo de tupla',
+            error: 'falta el tipo `[string, number]`.',
+          },
+          {
+            kind: 'includes',
+            needle: '[',
+            success: 'creaste la lista corta',
+            error: 'falta el valor de la tupla.',
+          },
+          {
+            kind: 'includes',
+            needle: ',',
+            success: 'separaste las dos posiciones',
+            error: 'falta la coma entre las dos posiciones.',
           },
         ],
       },
@@ -353,16 +465,14 @@ export const unitOneLessons: UnitLesson[] = [
     id: 'u1-l4',
     step: '4',
     title: 'Mini reto integrador',
-    summary:
-      'Juntas lo basico en un ejemplo pequeno y real.',
-    goal:
-      'Combinar objeto, array y funcion sin perder claridad.',
+    summary: 'Juntas lo basico en un ejemplo corto.',
+    goal: 'Unir [[objeto]], [[array]] y [[funcion]].',
     content: [
       {
         title: 'Tarjeta 1: objeto mas array',
         body: [
-          'Aqui unes dos ideas: un objeto `lesson` y una lista `tags`.',
-          'No hay sintaxis nueva. Solo repites lo ya visto: `:` para tipos, `{ }` para objeto, `[ ]` para lista y `=` para asignar el valor.',
+          'Aqui unes dos ideas: un [[objeto]] `lesson` y una [[lista]] `tags`.',
+          'No hay sintaxis nueva. Solo repites `:`, `{}`, `[]` y `=`.',
         ],
         code:
           "const lesson: { title: string; duration: number; published: boolean } = {\n  title: 'Fundamentos',\n  duration: 45,\n  published: true,\n};\n\nconst tags: string[] = ['typescript', 'basico'];",
@@ -370,8 +480,8 @@ export const unitOneLessons: UnitLesson[] = [
       {
         title: 'Tarjeta 2: funcion final',
         body: [
-          'La funcion final recibe tres datos: `title`, `duration` y `tags`. Cada coma separa un parametro del siguiente.',
-          'En `tags.join`, el punto `.` entra al array y usa `join` para unir todo en un solo texto.',
+          'La funcion final recibe `title`, `duration` y `tags`. Cada coma separa un parametro.',
+          'En [[tags.join]], el punto entra al array y usa `join` para unir todo.',
         ],
         code:
           "function summarizeLesson(title: string, duration: number, tags: string[]): string {\n  return `${title} dura ${duration} minutos y usa ${tags.join(', ')}`;\n}",
@@ -379,77 +489,111 @@ export const unitOneLessons: UnitLesson[] = [
     ],
     exercises: [
       {
-        id: 'lesson-model',
-        title: 'Ejercicio 1: modela una leccion',
+        id: 'u1-l4-c1-e1',
+        title: 'Ejercicio 1: crea lesson',
         instructions: [
-          'Declara una constante `lesson` con `title`, `duration` y `published`.',
-          'Tipa el objeto en la misma declaracion.',
-          'Agrega una constante `tags` de tipo `string[]` con al menos dos etiquetas.',
+          'Escribe el objeto `lesson`.',
+          'Debe tener `title`, `duration` y `published`.',
         ],
         placeholder:
-          "const lesson: { title: string; duration: number; published: boolean } = {\n  title: 'Tipos basicos',\n  duration: 35,\n  published: true,\n};\n\nconst tags: string[] = ['typescript', 'unidad-1'];",
-        minLength: 170,
+          "const lesson: { title: string; duration: number; published: boolean } = {\n  title: 'Tipos basicos',\n  duration: 35,\n  published: true,\n};",
+        minLength: 95,
         checks: [
           {
             kind: 'includes',
             needle: 'const lesson: { title: string; duration: number; published: boolean }',
-            success: 'tipaste el objeto `lesson` con sus tres propiedades',
+            success: 'tipaste el objeto `lesson`',
             error: 'falta tipar `lesson` con `title`, `duration` y `published`.',
-          },
-          {
-            kind: 'includes',
-            needle: 'const tags: string[]',
-            success: 'declaraste `tags` como array de strings',
-            error: 'falta declarar `tags` con tipo `string[]`.',
           },
         ],
       },
       {
-        id: 'lesson-summary',
-        title: 'Ejercicio 2: resume la leccion con una funcion',
+        id: 'u1-l4-c1-e2',
+        title: 'Ejercicio 2: crea tags',
         instructions: [
-          'Escribe una funcion `summarizeLesson` que reciba `title: string`, `duration: number` y `tags: string[]`.',
-          'La funcion debe devolver un `string` que resuma la leccion.',
-          'Usa `tags.join` dentro del `return`.',
+          'Debajo escribe `tags` como `string[]`.',
+          'Agrega al menos dos etiquetas.',
+        ],
+        placeholder: '',
+        minLength: 35,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const tags: string[]',
+            success: 'escribiste `tags` como array de strings',
+            error: 'falta `const tags: string[] = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c2-e1',
+        title: 'Ejercicio 3: firma de summarizeLesson',
+        instructions: [
+          'Escribe la funcion `summarizeLesson`.',
+          'Debe recibir `title`, `duration` y `tags` con sus tipos.',
         ],
         placeholder:
-          "function summarizeLesson(title: string, duration: number, tags: string[]): string {\n  return `${title} dura ${duration} minutos y usa ${tags.join(', ')}`;\n}",
-        minLength: 130,
+          "function summarizeLesson(title: string, duration: number, tags: string[]): string {\n  return '';\n}",
+        minLength: 80,
         checks: [
           {
             kind: 'includes',
             needle: 'function summarizelesson',
-            success: 'declaraste la funcion `summarizeLesson`',
-            error: 'falta la funcion `summarizeLesson`.',
+            success: 'escribiste `summarizeLesson`',
+            error: 'falta `summarizeLesson`.',
           },
           {
             kind: 'includes',
             needle: 'title: string',
-            success: 'tipaste `title` como string',
-            error: 'falta el parametro `title: string`.',
+            success: 'tipaste `title`',
+            error: 'falta `title: string`.',
           },
           {
             kind: 'includes',
             needle: 'duration: number',
-            success: 'tipaste `duration` como number',
-            error: 'falta el parametro `duration: number`.',
+            success: 'tipaste `duration`',
+            error: 'falta `duration: number`.',
           },
           {
             kind: 'includes',
             needle: 'tags: string[]',
-            success: 'tipaste `tags` como array de strings',
-            error: 'falta el parametro `tags: string[]`.',
+            success: 'tipaste `tags`',
+            error: 'falta `tags: string[]`.',
           },
           {
             kind: 'includes',
             needle: '): string',
-            success: 'indicaste que la funcion devuelve string',
-            error: 'falta indicar que la funcion devuelve `string`.',
+            success: 'marcaste retorno `string`',
+            error: 'falta indicar que devuelve `string`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c2-e2',
+        title: 'Ejercicio 4: resumen final',
+        instructions: [
+          'Escribe otra vez `summarizeLesson` completa.',
+          'Dentro usa [[return]] y [[tags.join]].',
+        ],
+        placeholder: '',
+        minLength: 95,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function summarizelesson',
+            success: 'la funcion existe',
+            error: 'falta `summarizeLesson`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
           },
           {
             kind: 'includes',
             needle: 'tags.join',
-            success: 'usas `tags.join` para resumir las etiquetas',
+            success: 'usas `tags.join`',
             error: 'falta usar `tags.join` dentro del `return`.',
           },
         ],

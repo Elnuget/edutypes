@@ -1,3 +1,5 @@
+import { unitOneLessons, type ExerciseCheck } from '../data/unit-one';
+
 export type ExerciseValidationResult = {
   ok: boolean;
   successes: string[];
@@ -16,6 +18,69 @@ type RuleValidationResult = {
 type TsModule = typeof import('typescript');
 
 const EXERCISE_FILE = 'exercise.ts';
+
+function normalizeSourceText(sourceText: string) {
+  return sourceText.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function findExerciseDefinition(exerciseId: string) {
+  for (const lesson of unitOneLessons) {
+    const exercise = lesson.exercises.find((item) => item.id === exerciseId);
+    if (exercise) {
+      return exercise;
+    }
+  }
+
+  return null;
+}
+
+function runCheck(check: ExerciseCheck, normalizedSource: string) {
+  if (check.kind === 'includes') {
+    return normalizedSource.includes(check.needle)
+      ? { ok: true, message: check.success }
+      : { ok: false, message: check.error };
+  }
+
+  return check.needles.some((needle) => normalizedSource.includes(needle))
+    ? { ok: true, message: check.success }
+    : { ok: false, message: check.error };
+}
+
+function validateWithLessonChecks(exerciseId: string, sourceText: string): RuleValidationResult {
+  const exercise = findExerciseDefinition(exerciseId);
+
+  if (!exercise) {
+    return {
+      ok: true,
+      successes: [],
+      errors: [],
+    };
+  }
+
+  const successes: string[] = [];
+  const errors: string[] = [];
+  const normalizedSource = normalizeSourceText(sourceText);
+
+  if (normalizedSource.length < exercise.minLength / 2) {
+    errors.push('El ejercicio esta demasiado corto para cumplir la consigna.');
+  }
+
+  for (const check of exercise.checks) {
+    const result = runCheck(check, normalizedSource);
+
+    if (result.ok) {
+      successes.push(result.message);
+    } else {
+      errors.push(result.message);
+    }
+  }
+
+  return {
+    ok: errors.length === 0,
+    successes,
+    errors,
+  };
+}
 
 function formatDiagnostic(ts: TsModule, diagnostic: import('typescript').Diagnostic) {
   const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ');
@@ -571,12 +636,20 @@ export async function validateExerciseWithCompiler(
   const validator = validators[exerciseId];
 
   if (!validator) {
+    const lessonCheckResult = validateWithLessonChecks(exerciseId, sourceText);
+    const errors = [...compilerErrors, ...lessonCheckResult.errors];
+
     return {
-      ok: compilerErrors.length === 0,
-      successes: compilerErrors.length === 0 ? ['El compilador no detecto errores.'] : [],
-      errors: compilerErrors,
+      ok: errors.length === 0,
+      successes:
+        lessonCheckResult.successes.length > 0
+          ? lessonCheckResult.successes
+          : compilerErrors.length === 0
+            ? ['El compilador no detecto errores.']
+            : [],
+      errors,
       compilerErrors,
-      ruleErrors: [],
+      ruleErrors: lessonCheckResult.errors,
       compilerOk: compilerErrors.length === 0,
     };
   }

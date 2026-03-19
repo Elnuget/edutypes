@@ -52,6 +52,24 @@ type LessonStage =
       exercise: LessonExercise;
     };
 
+function renderRichText(text: string) {
+  return text.split(/(`[^`]+`|\[\[[^[\]]+\]\])/g).filter(Boolean).map((part, index) => {
+    if (part.startsWith('[[') && part.endsWith(']]')) {
+      return (
+        <strong key={`${part}-${index}`} className="lesson-highlight">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return <code key={`${part}-${index}`}>{part.slice(1, -1)}</code>;
+    }
+
+    return <span key={`${part}-${index}`}>{part}</span>;
+  });
+}
+
 function buildLessonStages(lesson: UnitLesson): LessonStage[] {
   const introStage: LessonStage = {
     id: `${lesson.id}-intro`,
@@ -62,11 +80,10 @@ function buildLessonStages(lesson: UnitLesson): LessonStage[] {
   };
 
   const learningStages: LessonStage[] = [];
-  const totalPairs = Math.max(lesson.content.length, lesson.exercises.length);
+  const exerciseIndexes = new Set<number>();
 
-  for (let index = 0; index < totalPairs; index += 1) {
+  for (let index = 0; index < lesson.content.length; index += 1) {
     const block: LessonContentBlock | undefined = lesson.content[index];
-    const exercise: LessonExercise | undefined = lesson.exercises[index];
 
     if (block) {
       learningStages.push({
@@ -79,15 +96,38 @@ function buildLessonStages(lesson: UnitLesson): LessonStage[] {
       });
     }
 
-    if (exercise) {
+    const firstExerciseIndex = index * 2;
+    const secondExerciseIndex = firstExerciseIndex + 1;
+
+    for (const exerciseIndex of [firstExerciseIndex, secondExerciseIndex]) {
+      const exercise = lesson.exercises[exerciseIndex];
+
+      if (!exercise) {
+        continue;
+      }
+
+      exerciseIndexes.add(exerciseIndex);
       learningStages.push({
-        id: `${lesson.id}-exercise-${index}`,
+        id: `${lesson.id}-exercise-${exerciseIndex}`,
         kind: 'exercise',
-        label: `Ejercicio ${index + 1}`,
+        label: `Ejercicio ${exerciseIndex + 1}`,
         exercise,
       });
     }
   }
+
+  lesson.exercises.forEach((exercise, exerciseIndex) => {
+    if (exerciseIndexes.has(exerciseIndex)) {
+      return;
+    }
+
+    learningStages.push({
+      id: `${lesson.id}-exercise-${exerciseIndex}`,
+      kind: 'exercise',
+      label: `Ejercicio ${exerciseIndex + 1}`,
+      exercise,
+    });
+  });
 
   return [introStage, ...learningStages];
 }
@@ -251,7 +291,7 @@ function UnitOnePage({
               <div className="stage-card__content">
                 <h1>{activeStage.title}</h1>
                 {activeStage.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
+                  <p key={paragraph}>{renderRichText(paragraph)}</p>
                 ))}
               </div>
             ) : null}
@@ -260,7 +300,7 @@ function UnitOnePage({
               <div className="stage-card__content">
                 <h1>{activeStage.title}</h1>
                 {activeStage.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
+                  <p key={paragraph}>{renderRichText(paragraph)}</p>
                 ))}
                 {activeStage.code ? <pre>{activeStage.code}</pre> : null}
               </div>
@@ -272,7 +312,7 @@ function UnitOnePage({
 
                 <ul className="exercise-card__instructions">
                   {activeStage.exercise.instructions.map((instruction) => (
-                    <li key={instruction}>{instruction}</li>
+                    <li key={instruction}>{renderRichText(instruction)}</li>
                   ))}
                 </ul>
 

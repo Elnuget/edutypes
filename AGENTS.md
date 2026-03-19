@@ -31,3 +31,7 @@
 - Every lesson should keep content brief, actionable, and easy to consume in short sessions.
 - New EduTypes lessons should default to an alternating `tarjeta -> ejercicio -> tarjeta -> ejercicio` flow instead of stacking many explanation cards first.
 - Explanations must use very simple language and explicitly say what each symbol does when introducing new syntax.
+- Each lesson card should stay short and visually light.
+- Important words inside lesson cards should be highlighted in orange, bold, and underlined.
+- Default exercise rhythm for EduTypes lessons: `tarjeta -> ejercicio -> ejercicio -> tarjeta -> ejercicio -> ejercicio`.
+- The second exercise after each card should not use a placeholder.

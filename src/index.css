@@ -312,6 +312,23 @@ a {
   max-width: 48ch;
 }
 
+.lesson-highlight {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.16em;
+}
+
+.stage-card__content code,
+.exercise-card__instructions code {
+  padding: 0 0.28rem;
+  border-radius: 0.4rem;
+  background: #fff4e8;
+  color: #8b4a18;
+  font-size: 0.95em;
+}
+
 .exercise-card__instructions {
   list-style: none;
   padding: 0;
