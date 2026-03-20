@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   LessonExercise,
   LessonContentBlock,
@@ -68,6 +68,17 @@ function renderRichText(text: string) {
 
     return <span key={`${part}-${index}`}>{part}</span>;
   });
+}
+
+function getEditorCursor(text: string, selectionStart: number) {
+  const safePosition = Math.max(0, Math.min(selectionStart, text.length));
+  const before = text.slice(0, safePosition);
+  const lines = before.split('\n');
+
+  return {
+    line: lines.length,
+    column: lines[lines.length - 1].length + 1,
+  };
 }
 
 function buildLessonStages(lesson: UnitLesson): LessonStage[] {
@@ -149,6 +160,9 @@ function UnitOnePage({
   } | null>(null);
   const [pasteNotice, setPasteNotice] = useState<string | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
+  const [editorCursor, setEditorCursor] = useState({ line: 1, column: 1 });
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const gutterRef = useRef<HTMLDivElement | null>(null);
 
   const activeLesson =
     lessons.find((lesson) => lesson.id === progress.activeLessonId) ?? lessons[0];
@@ -164,11 +178,26 @@ function UnitOnePage({
   const activeExerciseValidated = activeExercise
     ? progress.validatedExercises[activeLesson.id]?.[activeExercise.id] === true
     : false;
+  const activeDraft = activeExercise
+    ? progress.drafts[activeLesson.id]?.[activeExercise.id] ?? ''
+    : '';
+  const editorLineCount = Math.max(6, activeDraft.split('\n').length);
 
   useEffect(() => {
     setPasteNotice(null);
     setFeedback(null);
+    setEditorCursor({ line: 1, column: 1 });
   }, [activeLesson.id, activeStageIndex]);
+
+  const syncGutterScroll = (scrollTop: number) => {
+    if (gutterRef.current) {
+      gutterRef.current.scrollTop = scrollTop;
+    }
+  };
+
+  const updateCursorFromTextarea = (target: HTMLTextAreaElement) => {
+    setEditorCursor(getEditorCursor(target.value, target.selectionStart ?? 0));
+  };
 
   const goToStage = (index: number) => {
     const boundedIndex = Math.max(0, Math.min(index, stages.length - 1));
@@ -316,24 +345,55 @@ function UnitOnePage({
                   ))}
                 </ul>
 
-                <textarea
-                  className="code-editor"
-                  spellCheck={false}
-                  value={progress.drafts[activeLesson.id]?.[activeStage.exercise.id] ?? ''}
-                  onChange={(event) => {
-                    setFeedback(null);
-                    onChangeDraft(activeLesson.id, activeStage.exercise.id, event.target.value);
-                  }}
-                  onPaste={(event) => {
-                    event.preventDefault();
-                    setPasteNotice('Pegar esta bloqueado. Solo teclado.');
-                  }}
-                  onDrop={(event) => {
-                    event.preventDefault();
-                    setPasteNotice('Arrastrar tambien esta bloqueado.');
-                  }}
-                  placeholder={activeStage.exercise.placeholder}
-                />
+                <div className="code-editor-shell">
+                  <div className="code-editor__meta">
+                    <span>{editorLineCount} lineas</span>
+                    <span>
+                      Linea {editorCursor.line}, columna {editorCursor.column}
+                    </span>
+                  </div>
+
+                  <div className="code-editor__frame">
+                    <div ref={gutterRef} className="code-editor__gutter" aria-hidden>
+                      {Array.from({ length: editorLineCount }, (_, index) => (
+                        <span key={index + 1}>{index + 1}</span>
+                      ))}
+                    </div>
+
+                    <textarea
+                      ref={textareaRef}
+                      className="code-editor"
+                      spellCheck={false}
+                      value={activeDraft}
+                      onChange={(event) => {
+                        setFeedback(null);
+                        updateCursorFromTextarea(event.target);
+                        onChangeDraft(activeLesson.id, activeStage.exercise.id, event.target.value);
+                      }}
+                      onClick={(event) => {
+                        updateCursorFromTextarea(event.currentTarget);
+                      }}
+                      onKeyUp={(event) => {
+                        updateCursorFromTextarea(event.currentTarget);
+                      }}
+                      onSelect={(event) => {
+                        updateCursorFromTextarea(event.currentTarget);
+                      }}
+                      onScroll={(event) => {
+                        syncGutterScroll(event.currentTarget.scrollTop);
+                      }}
+                      onPaste={(event) => {
+                        event.preventDefault();
+                        setPasteNotice('Pegar esta bloqueado. Solo teclado.');
+                      }}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        setPasteNotice('Arrastrar tambien esta bloqueado.');
+                      }}
+                      placeholder={activeStage.exercise.placeholder}
+                    />
+                  </div>
+                </div>
               </div>
             ) : null}
           </article>

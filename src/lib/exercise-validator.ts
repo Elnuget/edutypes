@@ -19,6 +19,10 @@ type TsModule = typeof import('typescript');
 
 const EXERCISE_FILE = 'exercise.ts';
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function normalizeCheckText(sourceText: string) {
   return sourceText
     .toLowerCase()
@@ -37,6 +41,22 @@ function stripCodePunctuation(sourceText: string) {
   return sourceText.toLowerCase().replace(/[`'"\s{}()[\],:;=.+\-*/]/g, '');
 }
 
+function getLineColumnFromIndex(sourceText: string, index: number) {
+  const safeIndex = Math.max(0, Math.min(index, sourceText.length));
+  const before = sourceText.slice(0, safeIndex);
+  const lines = before.split('\n');
+
+  return {
+    line: lines.length,
+    column: lines[lines.length - 1].length + 1,
+  };
+}
+
+function formatLocatedHint(sourceText: string, index: number, message: string) {
+  const { line, column } = getLineColumnFromIndex(sourceText, index);
+  return `Linea ${line}, columna ${column}: ${message}`;
+}
+
 function findMissingColonHint(expectedText: string, sourceText: string) {
   const expectedCompact = compactCodeText(expectedText);
   const sourceCompact = compactCodeText(sourceText);
@@ -51,9 +71,13 @@ function findMissingColonHint(expectedText: string, sourceText: string) {
     }
 
     if (sourceCompact.includes(`${left}${right}`)) {
+      const pattern = new RegExp(`${escapeRegExp(left)}\\s*${escapeRegExp(right)}`, 'i');
+      const sourceMatch = pattern.exec(sourceText);
+      const index = sourceMatch ? sourceMatch.index + left.length : 0;
+
       return left === ')'
-        ? 'Te falta `:` despues de `)`.'
-        : `Te falta \`:\` despues de \`${left}\`.`;
+        ? formatLocatedHint(sourceText, index, 'Te falta `:` despues de `)`.')
+        : formatLocatedHint(sourceText, index, `Te falta \`:\` despues de \`${left}\`.`);
     }
   }
 
@@ -74,7 +98,11 @@ function findMissingCommaHint(expectedText: string, sourceText: string) {
     }
 
     if (sourceCompact.includes(`${left}${right}`)) {
-      return `Te falta \`,\` antes de \`${right}\`.`;
+      const pattern = new RegExp(`${escapeRegExp(left)}\\s*${escapeRegExp(right)}`, 'i');
+      const sourceMatch = pattern.exec(sourceText);
+      const index = sourceMatch ? sourceMatch.index + left.length : 0;
+
+      return formatLocatedHint(sourceText, index, `Te falta \`,\` antes de \`${right}\`.`);
     }
   }
 
@@ -92,7 +120,15 @@ function findMissingEqualsHint(expectedText: string, sourceText: string) {
 
   const left = match[1];
   if (!sourceCompact.includes(`${left}=`) && sourceCompact.includes(left)) {
-    return `Te falta \`=\` despues de \`${left.replace(/^[^a-z_$]*/i, '') || left}\`.`;
+    const pattern = new RegExp(`${escapeRegExp(left)}\\s+`, 'i');
+    const sourceMatch = pattern.exec(sourceText);
+    const index = sourceMatch ? sourceMatch.index + left.length : 0;
+
+    return formatLocatedHint(
+      sourceText,
+      index,
+      `Te falta \`=\` despues de \`${left.replace(/^[^a-z_$]*/i, '') || left}\`.`,
+    );
   }
 
   return null;
@@ -111,15 +147,44 @@ function findMissingClosingHint(expectedText: string, sourceText: string) {
   };
 
   if (sourceCounts['}'] < expectedCounts['}']) {
-    return 'Te falta `}` para cerrar el bloque.';
+    return formatLocatedHint(sourceText, sourceText.length, 'Te falta `}` para cerrar el bloque.');
   }
 
   if (sourceCounts[')'] < expectedCounts[')']) {
-    return 'Te falta `)` para cerrar.';
+    return formatLocatedHint(sourceText, sourceText.length, 'Te falta `)` para cerrar.');
   }
 
   if (sourceCounts[']'] < expectedCounts[']']) {
-    return 'Te falta `]` para cerrar la lista o tupla.';
+    return formatLocatedHint(
+      sourceText,
+      sourceText.length,
+      'Te falta `]` para cerrar la lista o tupla.',
+    );
+  }
+
+  return null;
+}
+
+function findExtraCommaHint(expectedText: string, sourceText: string) {
+  const expectedCompact = compactCodeText(expectedText);
+  const sourceCompact = compactCodeText(sourceText);
+  const commaBeforeClosing = /,(\s*[}\]\)])/m.exec(sourceText);
+
+  if (!commaBeforeClosing) {
+    return null;
+  }
+
+  if (
+    (sourceCompact.includes(',}') && !expectedCompact.includes(',}')) ||
+    (sourceCompact.includes(',]') && !expectedCompact.includes(',]')) ||
+    (sourceCompact.includes(',)') && !expectedCompact.includes(',)'))
+  ) {
+    const closingChar = commaBeforeClosing[1].trim()[0];
+    return formatLocatedHint(
+      sourceText,
+      commaBeforeClosing.index,
+      `Te sobra \`,\` antes de \`${closingChar}\`.`,
+    );
   }
 
   return null;
@@ -128,17 +193,23 @@ function findMissingClosingHint(expectedText: string, sourceText: string) {
 function findExtraSemicolonHint(expectedText: string, sourceText: string) {
   const expectedCompact = compactCodeText(expectedText);
   const sourceCompact = compactCodeText(sourceText);
+  const semicolonBeforeClosing = /;(\s*[}\]\)])/m.exec(sourceText);
 
-  if (sourceCompact.includes(';}') && !expectedCompact.includes(';}')) {
-    return 'Te sobra `;` antes de `}`.';
+  if (!semicolonBeforeClosing) {
+    return null;
   }
 
-  if (sourceCompact.includes(';)') && !expectedCompact.includes(';)')) {
-    return 'Te sobra `;` antes de `)`.';
-  }
-
-  if (sourceCompact.includes(';]') && !expectedCompact.includes(';]')) {
-    return 'Te sobra `;` antes de `]`.';
+  if (
+    (sourceCompact.includes(';}') && !expectedCompact.includes(';}')) ||
+    (sourceCompact.includes(';)') && !expectedCompact.includes(';)')) ||
+    (sourceCompact.includes(';]') && !expectedCompact.includes(';]'))
+  ) {
+    const closingChar = semicolonBeforeClosing[1].trim()[0];
+    return formatLocatedHint(
+      sourceText,
+      semicolonBeforeClosing.index,
+      `Te sobra \`;\` antes de \`${closingChar}\`.`,
+    );
   }
 
   return null;
@@ -153,12 +224,68 @@ function findPreciseSyntaxHint(expectedText: string, sourceText: string) {
   }
 
   return (
+    findExtraCommaHint(expectedText, sourceText) ??
     findExtraSemicolonHint(expectedText, sourceText) ??
     findMissingColonHint(expectedText, sourceText) ??
     findMissingCommaHint(expectedText, sourceText) ??
     findMissingEqualsHint(expectedText, sourceText) ??
     findMissingClosingHint(expectedText, sourceText)
   );
+}
+
+function getPreviousMeaningfulCharacter(sourceText: string, index: number) {
+  for (let cursor = Math.min(index - 1, sourceText.length - 1); cursor >= 0; cursor -= 1) {
+    const current = sourceText[cursor];
+    if (!/\s/.test(current)) {
+      return { char: current, index: cursor };
+    }
+  }
+
+  return null;
+}
+
+function explainCompilerDiagnostic(
+  ts: TsModule,
+  diagnostic: import('typescript').Diagnostic,
+  sourceText: string,
+) {
+  const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ');
+
+  if (!diagnostic.file || diagnostic.start === undefined) {
+    return message;
+  }
+
+  const previousChar = getPreviousMeaningfulCharacter(sourceText, diagnostic.start);
+
+  if (message === 'Expression expected.' && previousChar?.char === ',') {
+    return formatLocatedHint(
+      sourceText,
+      previousChar.index,
+      'Te sobra `,` al final de la expresion anterior.',
+    );
+  }
+
+  if (message === "',' expected.") {
+    return formatLocatedHint(sourceText, diagnostic.start, 'Te falta `,` en esta posicion.');
+  }
+
+  if (message === "':' expected.") {
+    return formatLocatedHint(sourceText, diagnostic.start, 'Te falta `:` en esta posicion.');
+  }
+
+  if (message === "';' expected.") {
+    return formatLocatedHint(sourceText, diagnostic.start, 'Te falta `;` en esta posicion.');
+  }
+
+  if (message === "'}' expected.") {
+    return formatLocatedHint(sourceText, diagnostic.start, 'Te falta `}` para cerrar el bloque.');
+  }
+
+  if (message === "')' expected.") {
+    return formatLocatedHint(sourceText, diagnostic.start, 'Te falta `)` para cerrar.');
+  }
+
+  return null;
 }
 
 function findExerciseDefinition(exerciseId: string) {
@@ -291,7 +418,9 @@ function getCompilerErrors(ts: TsModule, sourceText: string) {
     sourceFile,
     errors: diagnostics
       .filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
-      .map((diagnostic) => formatDiagnostic(ts, diagnostic)),
+      .map((diagnostic) =>
+        explainCompilerDiagnostic(ts, diagnostic, sourceText) ?? formatDiagnostic(ts, diagnostic),
+      ),
   };
 }
 

@@ -98,6 +98,15 @@ export const unitOneLessons: UnitLesson[] = [
         code:
           "function showName(name: string): string {\n  return name;\n}",
       },
+      {
+        title: 'Tarjeta 7: dos puntos y signo igual',
+        body: [
+          'El `:` no asigna. El `:` solo une [[nombre]] con [[tipo]].',
+          'El `=` si asigna. Une la estructura escrita con el [[valor real]] que guardas.',
+        ],
+        code:
+          "const unitLabel: string = 'Tipos';\nlet totalPoints: number = 10;",
+      },
     ],
     exercises: [
       {
@@ -439,6 +448,42 @@ export const unitOneLessons: UnitLesson[] = [
           },
         ],
       },
+      {
+        id: 'u1-l1-c7-e1',
+        title: 'Ejercicio 13: usa : para tipar',
+        instructions: [
+          'Escribe `unitLabel` con tipo `string`.',
+          'Asegurate de usar [[ : ]] entre nombre y tipo.',
+        ],
+        placeholder: "const unitLabel: string = 'Tipos';",
+        minLength: 28,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const unitlabel: string',
+            success: 'usaste `:` para tipar `unitLabel`',
+            error: 'falta `const unitLabel: string ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c7-e2',
+        title: 'Ejercicio 14: usa = para asignar',
+        instructions: [
+          'Escribe `totalPoints` con tipo `number`.',
+          'Asegurate de usar [[=]] para asignar el valor.',
+        ],
+        placeholder: '',
+        minLength: 30,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'let totalpoints: number =',
+            success: 'usaste `=` para asignar `totalPoints`',
+            error: 'falta `let totalPoints: number = ...`.',
+          },
+        ],
+      },
     ],
   },
   {
@@ -501,6 +546,15 @@ export const unitOneLessons: UnitLesson[] = [
         ],
         code:
           "function readCourse(course: { title: string; active: boolean }): string {\n  return course.title;\n}",
+      },
+      {
+        title: 'Tarjeta 7: el punto',
+        body: [
+          'El punto `.` sirve para entrar a algo mas grande y tomar una pieza interna.',
+          'En [[student.name]], `student` es el objeto completo y `name` es la propiedad exacta que quieres leer.',
+        ],
+        code:
+          "student.name\ncourse.title",
       },
     ],
     exercises: [
@@ -840,6 +894,42 @@ export const unitOneLessons: UnitLesson[] = [
           },
         ],
       },
+      {
+        id: 'u1-l2-c7-e1',
+        title: 'Ejercicio 13: usa student.name',
+        instructions: [
+          'Escribe solo una linea que use [[student.name]].',
+          'No hace falta una funcion completa en este ejercicio.',
+        ],
+        placeholder: 'student.name;',
+        minLength: 12,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'student.name',
+            success: 'usaste `student.name`',
+            error: 'falta `student.name`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c7-e2',
+        title: 'Ejercicio 14: usa course.title',
+        instructions: [
+          'Escribe solo una linea que use [[course.title]].',
+          'Asi practicas el punto con otro objeto.',
+        ],
+        placeholder: '',
+        minLength: 11,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'course.title',
+            success: 'usaste `course.title`',
+            error: 'falta `course.title`.',
+          },
+        ],
+      },
     ],
   },
   {
@@ -900,6 +990,15 @@ export const unitOneLessons: UnitLesson[] = [
         ],
         code:
           "function firstTopic(topics: string[]): string {\n  return topics[0];\n}",
+      },
+      {
+        title: 'Tarjeta 7: posicion cero',
+        body: [
+          'En un array, `topics[0]` pide la [[primera posicion]]. Se empieza desde cero, no desde uno.',
+          'Eso tambien ayuda a entender mejor por que una tupla tiene posiciones fijas.',
+        ],
+        code:
+          "topics[0]\ntopics[1]",
       },
     ],
     exercises: [
@@ -1193,6 +1292,42 @@ export const unitOneLessons: UnitLesson[] = [
           },
         ],
       },
+      {
+        id: 'u1-l3-c7-e1',
+        title: 'Ejercicio 13: primera posicion',
+        instructions: [
+          'Escribe solo una linea con [[topics[0]]].',
+          'Aqui solo practicas la primera posicion.',
+        ],
+        placeholder: 'topics[0];',
+        minLength: 8,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'topics[0]',
+            success: 'usaste `topics[0]`',
+            error: 'falta `topics[0]`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c7-e2',
+        title: 'Ejercicio 14: segunda posicion',
+        instructions: [
+          'Escribe solo una linea con `topics[1]`.',
+          'Asi ves que cada numero apunta a otra posicion.',
+        ],
+        placeholder: '',
+        minLength: 8,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'topics[1]',
+            success: 'usaste `topics[1]`',
+            error: 'falta `topics[1]`.',
+          },
+        ],
+      },
     ],
   },
   {
@@ -1255,6 +1390,15 @@ export const unitOneLessons: UnitLesson[] = [
         ],
         code:
           "function showTagList(tags: string[]): string {\n  return tags.join(', ');\n}",
+      },
+      {
+        title: 'Tarjeta 7: una pieza por vez',
+        body: [
+          'Cuando un resumen se ve largo, piensa una pieza por vez: [[title]], luego [[duration]], luego [[tags.join]].',
+          'Aprender TypeScript tambien es aprender a leer codigo por partes, no todo al mismo tiempo.',
+        ],
+        code:
+          "title\nduration\ntags.join(', ')",
       },
     ],
     exercises: [
@@ -1584,6 +1728,42 @@ export const unitOneLessons: UnitLesson[] = [
             needle: 'return',
             success: 'incluiste `return`',
             error: 'falta `return`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c7-e1',
+        title: 'Ejercicio 13: escribe title',
+        instructions: [
+          'Escribe solo una linea con `title`.',
+          'Aqui solo practicas esa pieza del resumen.',
+        ],
+        placeholder: 'title;',
+        minLength: 5,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'title',
+            success: 'escribiste `title`',
+            error: 'falta `title`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c7-e2',
+        title: 'Ejercicio 14: escribe tags.join',
+        instructions: [
+          'Escribe solo una linea con `tags.join`.',
+          'Asi practicas esa pieza antes del resumen completo.',
+        ],
+        placeholder: '',
+        minLength: 9,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'tags.join',
+            success: 'escribiste `tags.join`',
+            error: 'falta `tags.join`.',
           },
         ],
       },

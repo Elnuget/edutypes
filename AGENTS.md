@@ -39,3 +39,5 @@
 - In foundational units, it is acceptable to double or triple the number of micro-cards if that is what it takes to explain each symbol and step clearly.
 - Exercise feedback should be highly specific. When the student is close, say the exact fix, for example `te sobra ; antes de }` or `te falta : despues de student`.
 - Avoid generic syntax feedback when a more precise correction can be inferred from the student's code.
+- Code writing areas should show line numbers and the current line/column when feasible, especially in learning units.
+- Error feedback should mention the most precise location available, ideally line and column plus the exact symbol or structure to correct.
