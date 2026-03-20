@@ -161,8 +161,11 @@ function UnitOnePage({
   const [pasteNotice, setPasteNotice] = useState<string | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
   const [editorCursor, setEditorCursor] = useState({ line: 1, column: 1 });
+  const [editorWidth, setEditorWidth] = useState(0);
+  const [logicalLineHeights, setLogicalLineHeights] = useState<number[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const gutterRef = useRef<HTMLDivElement | null>(null);
+  const lineMeasureRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const activeLesson =
     lessons.find((lesson) => lesson.id === progress.activeLessonId) ?? lessons[0];
@@ -181,13 +184,59 @@ function UnitOnePage({
   const activeDraft = activeExercise
     ? progress.drafts[activeLesson.id]?.[activeExercise.id] ?? ''
     : '';
-  const editorLineCount = Math.max(6, activeDraft.split('\n').length);
+  const logicalLines = useMemo(() => {
+    const lines = activeDraft.split('\n');
+    return lines.length > 0 ? lines : [''];
+  }, [activeDraft]);
+  const editorLineCount = Math.max(6, logicalLines.length);
 
   useEffect(() => {
     setPasteNotice(null);
     setFeedback(null);
     setEditorCursor({ line: 1, column: 1 });
   }, [activeLesson.id, activeStageIndex]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+
+    if (!textarea || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const updateWidth = () => {
+      setEditorWidth(textarea.clientWidth);
+    };
+
+    updateWidth();
+
+    const observer = new ResizeObserver(() => {
+      updateWidth();
+    });
+
+    observer.observe(textarea);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [activeLesson.id, activeStageIndex]);
+
+  useEffect(() => {
+    const computedLineHeight = textareaRef.current
+      ? Number.parseFloat(window.getComputedStyle(textareaRef.current).lineHeight)
+      : 24;
+    const fallbackLineHeight = Number.isFinite(computedLineHeight) ? computedLineHeight : 24;
+
+    const measuredHeights = logicalLines.map((_, index) => {
+      const element = lineMeasureRefs.current[index];
+      return element ? Math.max(element.getBoundingClientRect().height, fallbackLineHeight) : fallbackLineHeight;
+    });
+
+    while (measuredHeights.length < editorLineCount) {
+      measuredHeights.push(fallbackLineHeight);
+    }
+
+    setLogicalLineHeights(measuredHeights);
+  }, [editorLineCount, editorWidth, logicalLines]);
 
   const syncGutterScroll = (scrollTop: number) => {
     if (gutterRef.current) {
@@ -356,7 +405,14 @@ function UnitOnePage({
                   <div className="code-editor__frame">
                     <div ref={gutterRef} className="code-editor__gutter" aria-hidden>
                       {Array.from({ length: editorLineCount }, (_, index) => (
-                        <span key={index + 1}>{index + 1}</span>
+                        <span
+                          key={index + 1}
+                          style={{
+                            height: `${logicalLineHeights[index] ?? 24}px`,
+                          }}
+                        >
+                          {index + 1}
+                        </span>
                       ))}
                     </div>
 
@@ -392,6 +448,27 @@ function UnitOnePage({
                       }}
                       placeholder={activeStage.exercise.placeholder}
                     />
+                  </div>
+
+                  <div className="code-editor__measure" aria-hidden>
+                    <div
+                      className="code-editor__measure-content"
+                      style={{
+                        width: editorWidth > 0 ? `${editorWidth}px` : undefined,
+                      }}
+                    >
+                      {logicalLines.map((line, index) => (
+                        <div
+                          key={`${index}-${line}`}
+                          ref={(element) => {
+                            lineMeasureRefs.current[index] = element;
+                          }}
+                          className="code-editor__measure-line"
+                        >
+                          {line || ' '}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

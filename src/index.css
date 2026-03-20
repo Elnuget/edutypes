@@ -374,6 +374,7 @@ pre {
 }
 
 .code-editor__frame {
+  position: relative;
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr);
   border-radius: 16px;
@@ -397,8 +398,32 @@ pre {
 }
 
 .code-editor__gutter span {
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
   text-align: right;
+  padding-top: 0.05em;
+}
+
+.code-editor__measure {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.code-editor__measure-content {
+  padding: 14px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 1rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.code-editor__measure-line {
   min-height: 1.55em;
 }
 
@@ -411,6 +436,9 @@ pre {
   color: var(--text);
   resize: none;
   line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .code-editor:focus {
