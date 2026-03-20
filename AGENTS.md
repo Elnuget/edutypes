@@ -35,3 +35,7 @@
 - Important words inside lesson cards should be highlighted in orange, bold, and underlined.
 - Default exercise rhythm for EduTypes lessons: `tarjeta -> ejercicio -> ejercicio -> tarjeta -> ejercicio -> ejercicio`.
 - The second exercise after each card should not use a placeholder.
+- If a syntax topic still feels underexplained, prefer adding another short card plus two more exercises instead of making a single card dense.
+- In foundational units, it is acceptable to double or triple the number of micro-cards if that is what it takes to explain each symbol and step clearly.
+- Exercise feedback should be highly specific. When the student is close, say the exact fix, for example `te sobra ; antes de }` or `te falta : despues de student`.
+- Avoid generic syntax feedback when a more precise correction can be inferred from the student's code.

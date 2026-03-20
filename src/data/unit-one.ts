@@ -62,6 +62,42 @@ export const unitOneLessons: UnitLesson[] = [
         code:
           "function greetStudent(name: string, level: number): string {\n  return `${name} esta en el nivel ${level}`;\n}",
       },
+      {
+        title: 'Tarjeta 3: orden de una linea',
+        body: [
+          'Una linea simple suele seguir este orden: [[palabra clave]], [[nombre]], [[tipo]], [[=]], [[valor]].',
+          'Si cambias ese orden, TypeScript se confunde. Primero nombras, despues tipas y al final das el valor real.',
+        ],
+        code:
+          "const courseTitle: string = 'EduTypes';\nlet currentLevel: number = 1;",
+      },
+      {
+        title: 'Tarjeta 4: punto y coma',
+        body: [
+          'El [[;]] cierra una linea. Le dice a TypeScript: aqui termina esta instruccion.',
+          'No siempre es obligatorio, pero en EduTypes lo usaremos para que la estructura se vea clara desde el inicio.',
+        ],
+        code:
+          "const teacherName: string = 'Ana';\nlet studentCount: number = 12;",
+      },
+      {
+        title: 'Tarjeta 5: parentesis y parametros',
+        body: [
+          'En una funcion, `(` abre la zona de entrada y `)` la cierra. Dentro van los [[parametros]].',
+          'Cada parametro repite la misma mini-estructura: [[nombre]], luego `:`, luego [[tipo]].',
+        ],
+        code:
+          "function createGreeting(name: string, level: number): string {\n  return `${name} va en ${level}`;\n}",
+      },
+      {
+        title: 'Tarjeta 6: llaves y bloque',
+        body: [
+          'Las llaves `{}` en una funcion guardan el [[bloque]] de codigo. Todo lo que la funcion hace vive dentro de ellas.',
+          'Dentro de ese bloque, [[return]] marca el valor final que la funcion entrega al terminar.',
+        ],
+        code:
+          "function showName(name: string): string {\n  return name;\n}",
+      },
     ],
     exercises: [
       {
@@ -179,6 +215,230 @@ export const unitOneLessons: UnitLesson[] = [
           },
         ],
       },
+      {
+        id: 'u1-l1-c3-e1',
+        title: 'Ejercicio 5: orden correcto',
+        instructions: [
+          'Escribe `courseTitle` con [[const]] y tipo `string`.',
+          'Respeta el orden: nombre, tipo y luego valor.',
+        ],
+        placeholder: "const courseTitle: string = 'EduTypes';",
+        minLength: 32,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const coursetitle: string =',
+            success: 'respetaste el orden de la linea',
+            error: 'falta `const courseTitle: string = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c3-e2',
+        title: 'Ejercicio 6: numero con orden correcto',
+        instructions: [
+          'Escribe `currentLevel` con [[let]] y tipo `number`.',
+          'No cambies el orden de las partes de la linea.',
+        ],
+        placeholder: '',
+        minLength: 28,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'let currentlevel: number =',
+            success: 'escribiste `currentLevel` con el orden correcto',
+            error: 'falta `let currentLevel: number = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c4-e1',
+        title: 'Ejercicio 7: linea cerrada',
+        instructions: [
+          'Escribe `teacherName` con `const` y tipo `string`.',
+          'La linea debe terminar con [[;]].',
+        ],
+        placeholder: "const teacherName: string = 'Ana';",
+        minLength: 30,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const teachername: string =',
+            success: 'escribiste `teacherName`',
+            error: 'falta `const teacherName: string = ...`.',
+          },
+          {
+            kind: 'includes',
+            needle: ';',
+            success: 'cerraste la linea con `;`',
+            error: 'falta `;` al final de la linea.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c4-e2',
+        title: 'Ejercicio 8: otra linea cerrada',
+        instructions: [
+          'Escribe `studentCount` con `let` y tipo `number`.',
+          'Tambien debe terminar con [[;]].',
+        ],
+        placeholder: '',
+        minLength: 28,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'let studentcount: number =',
+            success: 'escribiste `studentCount`',
+            error: 'falta `let studentCount: number = ...`.',
+          },
+          {
+            kind: 'includes',
+            needle: ';',
+            success: 'cerraste la linea con `;`',
+            error: 'falta `;` al final de la linea.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c5-e1',
+        title: 'Ejercicio 9: un parametro',
+        instructions: [
+          'Escribe `showName` con un parametro `name: string`.',
+          'Debe devolver `string`.',
+        ],
+        placeholder:
+          "function showName(name: string): string {\n  return '';\n}",
+        minLength: 58,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function showname',
+            success: 'escribiste `showName`',
+            error: 'falta `showName`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'name: string',
+            success: 'agregaste `name: string`',
+            error: 'falta `name: string`.',
+          },
+          {
+            kind: 'includes',
+            needle: '): string',
+            success: 'marcaste retorno `string`',
+            error: 'falta `): string`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c5-e2',
+        title: 'Ejercicio 10: dos parametros',
+        instructions: [
+          'Escribe `createGreeting` con `name: string` y `level: number`.',
+          'Separa los parametros con una coma.',
+        ],
+        placeholder: '',
+        minLength: 70,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function creategreeting',
+            success: 'escribiste `createGreeting`',
+            error: 'falta `createGreeting`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'name: string',
+            success: 'incluiste `name: string`',
+            error: 'falta `name: string`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'level: number',
+            success: 'incluiste `level: number`',
+            error: 'falta `level: number`.',
+          },
+          {
+            kind: 'includes',
+            needle: ',',
+            success: 'separaste los parametros con coma',
+            error: 'falta la coma entre parametros.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c6-e1',
+        title: 'Ejercicio 11: bloque con return',
+        instructions: [
+          'Escribe `showName` completa.',
+          'Debe tener llaves y usar [[return]].',
+        ],
+        placeholder:
+          "function showName(name: string): string {\n  return name;\n}",
+        minLength: 60,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function showname',
+            success: 'la funcion existe',
+            error: 'falta `showName`.',
+          },
+          {
+            kind: 'includes',
+            needle: '{',
+            success: 'abriste el bloque',
+            error: 'falta `{` para abrir el bloque.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
+          },
+          {
+            kind: 'includes',
+            needle: '}',
+            success: 'cerraste el bloque',
+            error: 'falta `}` para cerrar el bloque.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l1-c6-e2',
+        title: 'Ejercicio 12: bloque con texto',
+        instructions: [
+          'Escribe una funcion `showLevel` que reciba `level: number`.',
+          'Dentro usa llaves y [[return]] para devolver un texto.',
+        ],
+        placeholder: '',
+        minLength: 64,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function showlevel',
+            success: 'escribiste `showLevel`',
+            error: 'falta `showLevel`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'level: number',
+            success: 'tipaste `level`',
+            error: 'falta `level: number`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
+          },
+          {
+            kind: 'includes',
+            needle: '}',
+            success: 'cerraste el bloque',
+            error: 'falta `}` para cerrar el bloque.',
+          },
+        ],
+      },
     ],
   },
   {
@@ -205,6 +465,42 @@ export const unitOneLessons: UnitLesson[] = [
         ],
         code:
           "function printStudent(student: { name: string; completed: number }): string {\n  return `${student.name} completo ${student.completed} lecciones`;\n}",
+      },
+      {
+        title: 'Tarjeta 3: dos puntos y comas',
+        body: [
+          'Dentro del tipo, `:` une [[propiedad]] con [[tipo]]. Dentro del valor, `:` une [[propiedad]] con [[dato real]].',
+          'El `;` separa propiedades del tipo. La `,` separa propiedades con valor dentro del objeto real.',
+        ],
+        code:
+          "const profile: { name: string; premium: boolean } = {\n  name: 'Ana',\n  premium: true,\n};",
+      },
+      {
+        title: 'Tarjeta 4: tipo arriba y valor abajo',
+        body: [
+          'Antes de `=`, escribes el [[tipo esperado]]. Despues de `=`, escribes el [[objeto real]].',
+          'Arriba dices la forma. Abajo escribes los datos concretos que llenan esa forma.',
+        ],
+        code:
+          "const course: { title: string; active: boolean } = {\n  title: 'TS basico',\n  active: true,\n};",
+      },
+      {
+        title: 'Tarjeta 5: llaves del objeto',
+        body: [
+          'Las llaves del tipo `{}` y las llaves del valor `{}` se parecen, pero no hacen el mismo trabajo.',
+          'Unas describen. Las otras guardan. Por eso es importante no mezclarlas ni cerrarlas mal.',
+        ],
+        code:
+          "const badge: { label: string; unlocked: boolean } = {\n  label: 'Inicio',\n  unlocked: false,\n};",
+      },
+      {
+        title: 'Tarjeta 6: objeto como parametro',
+        body: [
+          'Cuando una funcion recibe un objeto, el [[nombre del parametro]] va primero y su [[tipo de objeto]] va despues de `:`.',
+          'Eso permite escribir `student.name` dentro de la funcion sin perder claridad.',
+        ],
+        code:
+          "function readCourse(course: { title: string; active: boolean }): string {\n  return course.title;\n}",
       },
     ],
     exercises: [
@@ -330,6 +626,220 @@ export const unitOneLessons: UnitLesson[] = [
           },
         ],
       },
+      {
+        id: 'u1-l2-c3-e1',
+        title: 'Ejercicio 5: profile tipado',
+        instructions: [
+          'Escribe `profile` con las propiedades `name` y `premium`.',
+          'Usa `:` para los tipos y `=` para asignar el objeto.',
+        ],
+        placeholder:
+          "const profile: { name: string; premium: boolean } = {\n  name: 'Ana',\n  premium: true,\n};",
+        minLength: 75,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const profile: { name: string; premium: boolean }',
+            success: 'tipaste `profile` correctamente',
+            error: 'falta `const profile: { name: string; premium: boolean } = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c3-e2',
+        title: 'Ejercicio 6: propiedades reales',
+        instructions: [
+          'Escribe otra vez `profile` completa.',
+          'Asegurate de poner `name:` y `premium:` dentro del objeto real.',
+        ],
+        placeholder: '',
+        minLength: 70,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const profile:',
+            success: 'mantienes la declaracion de `profile`',
+            error: 'falta declarar `profile`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'name:',
+            success: 'incluiste `name:`',
+            error: 'falta `name:` dentro del objeto.',
+          },
+          {
+            kind: 'includes',
+            needle: 'premium:',
+            success: 'incluiste `premium:`',
+            error: 'falta `premium:` dentro del objeto.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c4-e1',
+        title: 'Ejercicio 7: course tipado',
+        instructions: [
+          'Escribe `course` con `title` y `active`.',
+          'Primero debe ir el tipo y despues el objeto real.',
+        ],
+        placeholder:
+          "const course: { title: string; active: boolean } = {\n  title: 'TS basico',\n  active: true,\n};",
+        minLength: 78,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const course: { title: string; active: boolean }',
+            success: 'tipaste `course` correctamente',
+            error: 'falta `const course: { title: string; active: boolean } = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c4-e2',
+        title: 'Ejercicio 8: objeto real de course',
+        instructions: [
+          'Escribe otra vez `course` completa.',
+          'Asegurate de poner `title:` y `active:` dentro del objeto real.',
+        ],
+        placeholder: '',
+        minLength: 70,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const course:',
+            success: 'mantienes `course`',
+            error: 'falta declarar `course`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'title:',
+            success: 'incluiste `title:`',
+            error: 'falta `title:`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'active:',
+            success: 'incluiste `active:`',
+            error: 'falta `active:`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c5-e1',
+        title: 'Ejercicio 9: badge completo',
+        instructions: [
+          'Escribe `badge` con `label` y `unlocked`.',
+          'Usa bien las llaves del tipo y las llaves del objeto.',
+        ],
+        placeholder:
+          "const badge: { label: string; unlocked: boolean } = {\n  label: 'Inicio',\n  unlocked: false,\n};",
+        minLength: 84,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const badge: { label: string; unlocked: boolean }',
+            success: 'tipaste `badge`',
+            error: 'falta `const badge: { label: string; unlocked: boolean } = ...`.',
+          },
+          {
+            kind: 'includes',
+            needle: '{',
+            success: 'incluiste llaves',
+            error: 'faltan llaves en la declaracion.',
+          },
+          {
+            kind: 'includes',
+            needle: '}',
+            success: 'cerraste las llaves',
+            error: 'falta `}` para cerrar.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c5-e2',
+        title: 'Ejercicio 10: propiedades de badge',
+        instructions: [
+          'Escribe otra vez `badge` completa.',
+          'Dentro del objeto real agrega `label:` y `unlocked:`.',
+        ],
+        placeholder: '',
+        minLength: 68,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'label:',
+            success: 'incluiste `label:`',
+            error: 'falta `label:`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'unlocked:',
+            success: 'incluiste `unlocked:`',
+            error: 'falta `unlocked:`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c6-e1',
+        title: 'Ejercicio 11: firma con objeto',
+        instructions: [
+          'Escribe `readCourse` con un parametro `course` de tipo objeto.',
+          'El objeto debe tener `title` y `active`.',
+        ],
+        placeholder:
+          "function readCourse(course: { title: string; active: boolean }): string {\n  return '';\n}",
+        minLength: 82,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function readcourse',
+            success: 'escribiste `readCourse`',
+            error: 'falta `readCourse`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'course: { title: string; active: boolean }',
+            success: 'tipaste el parametro `course`',
+            error: 'falta el tipo del parametro `course`.',
+          },
+          {
+            kind: 'includes',
+            needle: '): string',
+            success: 'marcaste retorno `string`',
+            error: 'falta `): string`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l2-c6-e2',
+        title: 'Ejercicio 12: usa course.title',
+        instructions: [
+          'Escribe `readCourse` completa.',
+          'Dentro usa [[course.title]] y [[return]].',
+        ],
+        placeholder: '',
+        minLength: 74,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function readcourse',
+            success: 'la funcion existe',
+            error: 'falta `readCourse`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'course.title',
+            success: 'usas `course.title`',
+            error: 'falta `course.title`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
+          },
+        ],
+      },
     ],
   },
   {
@@ -354,6 +864,42 @@ export const unitOneLessons: UnitLesson[] = [
           "Si escribes `['funciones', 2]`, el [[orden]] importa. Si lo cambias, TypeScript marca error.",
         ],
         code: "const lessonPair: [string, number] = ['funciones', 2];",
+      },
+      {
+        title: 'Tarjeta 3: length y posicion',
+        body: [
+          '[[topics.length]] cuenta cuantos elementos tiene el array. El punto entra al array y `length` devuelve el total.',
+          'En una tupla, cada posicion ya tiene un trabajo fijo. La primera no puede actuar como la segunda.',
+        ],
+        code:
+          "function countTopics(topics: string[]): number {\n  return topics.length;\n}",
+      },
+      {
+        title: 'Tarjeta 4: tipo de array y valor de array',
+        body: [
+          "En `topics: string[]`, la parte `string[]` es el [[tipo]]. En `['a', 'b']`, los corchetes guardan el [[valor real]].",
+          'Se ve parecido, pero arriba describes y abajo llenas la lista con datos concretos.',
+        ],
+        code:
+          "const labels: string[] = ['inicio', 'tipos', 'funciones'];",
+      },
+      {
+        title: 'Tarjeta 5: comas y orden en tuplas',
+        body: [
+          'La coma `,` separa posiciones. En una tupla no significa "o", significa [[primero esto]] y [[despues esto]].',
+          'Si la tupla es `[string, number]`, no puedes poner primero el numero y luego el texto.',
+        ],
+        code:
+          "const stepInfo: [string, number] = ['arrays', 3];",
+      },
+      {
+        title: 'Tarjeta 6: arrays como entrada',
+        body: [
+          'Una funcion tambien puede recibir un array como entrada. Eso se escribe en el parametro, por ejemplo [[topics: string[]]].',
+          'Despues, dentro del bloque, puedes leer propiedades del array como `length`.',
+        ],
+        code:
+          "function firstTopic(topics: string[]): string {\n  return topics[0];\n}",
       },
     ],
     exercises: [
@@ -459,6 +1005,194 @@ export const unitOneLessons: UnitLesson[] = [
           },
         ],
       },
+      {
+        id: 'u1-l3-c3-e1',
+        title: 'Ejercicio 5: usa length',
+        instructions: [
+          'Escribe `countTopics`.',
+          'Dentro usa [[topics.length]] para devolver la cantidad.',
+        ],
+        placeholder:
+          "function countTopics(topics: string[]): number {\n  return topics.length;\n}",
+        minLength: 72,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function counttopics',
+            success: 'escribiste `countTopics`',
+            error: 'falta `countTopics`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'topics.length',
+            success: 'usas `topics.length`',
+            error: 'falta `topics.length`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c3-e2',
+        title: 'Ejercicio 6: otra lista de textos',
+        instructions: [
+          'Escribe una nueva lista de textos con otro nombre.',
+          'Debe seguir usando el tipo `string[]`.',
+        ],
+        placeholder: '',
+        minLength: 34,
+        checks: [
+          {
+            kind: 'includes',
+            needle: ': string[] =',
+            success: 'mantuviste el tipo `string[]`',
+            error: 'falta el tipo `string[]` en la nueva lista.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c4-e1',
+        title: 'Ejercicio 7: labels',
+        instructions: [
+          'Escribe `labels` como `string[]`.',
+          'Agrega al menos tres textos dentro del array.',
+        ],
+        placeholder: "const labels: string[] = ['inicio', 'tipos', 'funciones'];",
+        minLength: 56,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const labels: string[] =',
+            success: 'escribiste `labels` como `string[]`',
+            error: 'falta `const labels: string[] = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c4-e2',
+        title: 'Ejercicio 8: otro array de textos',
+        instructions: [
+          'Escribe otro array de textos con otro nombre.',
+          'Debe seguir usando [[string[]]] y corchetes con valores reales.',
+        ],
+        placeholder: '',
+        minLength: 38,
+        checks: [
+          {
+            kind: 'includes',
+            needle: ': string[] =',
+            success: 'mantuviste `string[]`',
+            error: 'falta `string[]` en el nuevo array.',
+          },
+          {
+            kind: 'includes',
+            needle: '[',
+            success: 'incluiste corchetes',
+            error: 'faltan corchetes en el valor del array.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c5-e1',
+        title: 'Ejercicio 9: stepInfo',
+        instructions: [
+          'Escribe `stepInfo` como `[string, number]`.',
+          'Primero va el texto y despues el numero.',
+        ],
+        placeholder: "const stepInfo: [string, number] = ['arrays', 3];",
+        minLength: 44,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const stepinfo: [string, number] =',
+            success: 'escribiste `stepInfo`',
+            error: 'falta `const stepInfo: [string, number] = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c5-e2',
+        title: 'Ejercicio 10: otra tupla ordenada',
+        instructions: [
+          'Escribe otra tupla `[string, number]` con nombre distinto.',
+          'No cambies el orden de las dos posiciones.',
+        ],
+        placeholder: '',
+        minLength: 40,
+        checks: [
+          {
+            kind: 'includes',
+            needle: ': [string, number] =',
+            success: 'mantuviste el tipo de tupla',
+            error: 'falta `[string, number]` en la tupla nueva.',
+          },
+          {
+            kind: 'includes',
+            needle: ',',
+            success: 'separaste las dos posiciones',
+            error: 'falta la coma entre las dos posiciones.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c6-e1',
+        title: 'Ejercicio 11: firstTopic',
+        instructions: [
+          'Escribe `firstTopic` con parametro `topics: string[]`.',
+          'Debe devolver `string`.',
+        ],
+        placeholder:
+          "function firstTopic(topics: string[]): string {\n  return topics[0];\n}",
+        minLength: 64,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function firsttopic',
+            success: 'escribiste `firstTopic`',
+            error: 'falta `firstTopic`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'topics: string[]',
+            success: 'tipaste `topics`',
+            error: 'falta `topics: string[]`.',
+          },
+          {
+            kind: 'includes',
+            needle: '): string',
+            success: 'marcaste retorno `string`',
+            error: 'falta `): string`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l3-c6-e2',
+        title: 'Ejercicio 12: usa topics[0]',
+        instructions: [
+          'Escribe `firstTopic` completa.',
+          'Dentro usa [[return]] y `topics[0]`.',
+        ],
+        placeholder: '',
+        minLength: 60,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function firsttopic',
+            success: 'la funcion existe',
+            error: 'falta `firstTopic`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'topics[0]',
+            success: 'usas `topics[0]`',
+            error: 'falta `topics[0]` dentro del `return`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
+          },
+        ],
+      },
     ],
   },
   {
@@ -485,6 +1219,42 @@ export const unitOneLessons: UnitLesson[] = [
         ],
         code:
           "function summarizeLesson(title: string, duration: number, tags: string[]): string {\n  return `${title} dura ${duration} minutos y usa ${tags.join(', ')}`;\n}",
+      },
+      {
+        title: 'Tarjeta 3: resumen final por partes',
+        body: [
+          'Dentro del `return`, cada parte del texto sale de una variable o parametro. [[title]] aporta el nombre, [[duration]] el numero y [[tags.join]] las etiquetas.',
+          'La idea final es unir piezas ya aprendidas: tipar bien, pasar datos bien y devolver un texto claro.',
+        ],
+        code:
+          "return `${title} dura ${duration} minutos y usa ${tags.join(', ')}`;",
+      },
+      {
+        title: 'Tarjeta 4: mismo archivo, varias piezas',
+        body: [
+          'En un mismo bloque puedes tener varias piezas: una constante objeto, una constante array y una funcion.',
+          'No se pelean entre si. Cada una tiene su propio nombre y su propia tarea.',
+        ],
+        code:
+          "const unitName: string = 'Unidad 1';\nconst tags: string[] = ['ts', 'basico'];",
+      },
+      {
+        title: 'Tarjeta 5: comas entre parametros',
+        body: [
+          'En una firma de funcion, la coma `,` separa un parametro del siguiente. Si falta, la lectura se rompe.',
+          'Cada parametro debe conservar su tipo. No basta con poner solo el nombre.',
+        ],
+        code:
+          "function buildTitle(title: string, duration: number): string {\n  return `${title} ${duration}`;\n}",
+      },
+      {
+        title: 'Tarjeta 6: join y texto final',
+        body: [
+          '[[tags.join]] toma una lista y la convierte en un solo texto. Por eso sirve bien para resúmenes.',
+          'Luego ese texto ya puede viajar dentro del `return` junto con otras partes como `title` o `duration`.',
+        ],
+        code:
+          "function showTagList(tags: string[]): string {\n  return tags.join(', ');\n}",
       },
     ],
     exercises: [
@@ -595,6 +1365,225 @@ export const unitOneLessons: UnitLesson[] = [
             needle: 'tags.join',
             success: 'usas `tags.join`',
             error: 'falta usar `tags.join` dentro del `return`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c3-e1',
+        title: 'Ejercicio 5: return con duration',
+        instructions: [
+          'Escribe una funcion `showDuration` que reciba `duration: number`.',
+          'Debe devolver un `string` usando [[return]].',
+        ],
+        placeholder:
+          "function showDuration(duration: number): string {\n  return `Dura ${duration} minutos`;\n}",
+        minLength: 70,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function showduration',
+            success: 'escribiste `showDuration`',
+            error: 'falta `showDuration`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'duration: number',
+            success: 'tipaste `duration`',
+            error: 'falta `duration: number`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c3-e2',
+        title: 'Ejercicio 6: return con tags',
+        instructions: [
+          'Escribe una funcion `showTags` que reciba `tags: string[]`.',
+          'Dentro usa [[tags.join]] para devolver un `string`.',
+        ],
+        placeholder: '',
+        minLength: 68,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function showtags',
+            success: 'escribiste `showTags`',
+            error: 'falta `showTags`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'tags: string[]',
+            success: 'tipaste `tags`',
+            error: 'falta `tags: string[]`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'tags.join',
+            success: 'usas `tags.join`',
+            error: 'falta `tags.join` dentro del `return`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c4-e1',
+        title: 'Ejercicio 7: unitName',
+        instructions: [
+          'Escribe `unitName` con tipo `string`.',
+          'Debe ser una constante simple del mismo bloque.',
+        ],
+        placeholder: "const unitName: string = 'Unidad 1';",
+        minLength: 28,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const unitname: string =',
+            success: 'escribiste `unitName`',
+            error: 'falta `const unitName: string = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c4-e2',
+        title: 'Ejercicio 8: tags del mismo bloque',
+        instructions: [
+          'Debajo escribe `tags` como `string[]`.',
+          'Asi practicas varias piezas en un mismo archivo.',
+        ],
+        placeholder: '',
+        minLength: 32,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'const tags: string[]',
+            success: 'agregaste `tags`',
+            error: 'falta `const tags: string[] = ...`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c5-e1',
+        title: 'Ejercicio 9: buildTitle',
+        instructions: [
+          'Escribe `buildTitle` con `title: string` y `duration: number`.',
+          'No olvides la coma entre ambos parametros.',
+        ],
+        placeholder:
+          "function buildTitle(title: string, duration: number): string {\n  return `${title} ${duration}`;\n}",
+        minLength: 74,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function buildtitle',
+            success: 'escribiste `buildTitle`',
+            error: 'falta `buildTitle`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'title: string',
+            success: 'incluiste `title: string`',
+            error: 'falta `title: string`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'duration: number',
+            success: 'incluiste `duration: number`',
+            error: 'falta `duration: number`.',
+          },
+          {
+            kind: 'includes',
+            needle: ',',
+            success: 'separaste los parametros con coma',
+            error: 'falta la coma entre parametros.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c5-e2',
+        title: 'Ejercicio 10: buildTitle completo',
+        instructions: [
+          'Escribe otra vez `buildTitle` completa.',
+          'Debe usar [[return]] para devolver un texto.',
+        ],
+        placeholder: '',
+        minLength: 66,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function buildtitle',
+            success: 'la funcion existe',
+            error: 'falta `buildTitle`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c6-e1',
+        title: 'Ejercicio 11: showTagList',
+        instructions: [
+          'Escribe `showTagList` con parametro `tags: string[]`.',
+          'Debe devolver `string`.',
+        ],
+        placeholder:
+          "function showTagList(tags: string[]): string {\n  return tags.join(', ');\n}",
+        minLength: 68,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function showtaglist',
+            success: 'escribiste `showTagList`',
+            error: 'falta `showTagList`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'tags: string[]',
+            success: 'tipaste `tags`',
+            error: 'falta `tags: string[]`.',
+          },
+          {
+            kind: 'includes',
+            needle: '): string',
+            success: 'marcaste retorno `string`',
+            error: 'falta `): string`.',
+          },
+        ],
+      },
+      {
+        id: 'u1-l4-c6-e2',
+        title: 'Ejercicio 12: join directo',
+        instructions: [
+          'Escribe `showTagList` completa.',
+          'Dentro usa [[return]] y [[tags.join]].',
+        ],
+        placeholder: '',
+        minLength: 62,
+        checks: [
+          {
+            kind: 'includes',
+            needle: 'function showtaglist',
+            success: 'la funcion existe',
+            error: 'falta `showTagList`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'tags.join',
+            success: 'usas `tags.join`',
+            error: 'falta `tags.join` dentro del `return`.',
+          },
+          {
+            kind: 'includes',
+            needle: 'return',
+            success: 'incluiste `return`',
+            error: 'falta `return`.',
           },
         ],
       },
