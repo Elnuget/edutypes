@@ -57,6 +57,85 @@ function formatLocatedHint(sourceText: string, index: number, message: string) {
   return `Linea ${line}, columna ${column}: ${message}`;
 }
 
+function getLevenshteinDistance(left: string, right: string) {
+  const rows = left.length + 1;
+  const cols = right.length + 1;
+  const matrix = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0));
+
+  for (let row = 0; row < rows; row += 1) {
+    matrix[row][0] = row;
+  }
+
+  for (let col = 0; col < cols; col += 1) {
+    matrix[0][col] = col;
+  }
+
+  for (let row = 1; row < rows; row += 1) {
+    for (let col = 1; col < cols; col += 1) {
+      const cost = left[row - 1] === right[col - 1] ? 0 : 1;
+      matrix[row][col] = Math.min(
+        matrix[row - 1][col] + 1,
+        matrix[row][col - 1] + 1,
+        matrix[row - 1][col - 1] + cost,
+      );
+    }
+  }
+
+  return matrix[left.length][right.length];
+}
+
+function findPropertyLikeHint(expectedText: string, sourceText: string) {
+  const propertyMatch = expectedText.match(/^([a-z_$][\w$]*)\s*:/i);
+
+  if (!propertyMatch) {
+    return null;
+  }
+
+  const expectedName = propertyMatch[1];
+  const lineEntries = sourceText.split('\n');
+
+  for (let lineIndex = 0; lineIndex < lineEntries.length; lineIndex += 1) {
+    const lineText = lineEntries[lineIndex];
+    const propertyEntries = lineText.matchAll(/\b([a-z_$][\w$]*)\b\s*([:=])/gi);
+
+    for (const entry of propertyEntries) {
+      const actualName = entry[1];
+      const separator = entry[2];
+      const startIndex = entry.index ?? 0;
+      const absoluteIndex =
+        sourceText
+          .split('\n')
+          .slice(0, lineIndex)
+          .reduce((total, current) => total + current.length + 1, 0) + startIndex;
+
+      if (actualName.toLowerCase() === expectedName.toLowerCase()) {
+        if (separator === '=') {
+          return formatLocatedHint(
+            sourceText,
+            absoluteIndex + actualName.length,
+            `Despues de \`${expectedName}\` debe ir \`:\` y no \`=\`.`,
+          );
+        }
+
+        return null;
+      }
+
+      if (getLevenshteinDistance(actualName.toLowerCase(), expectedName.toLowerCase()) <= 2) {
+        const separatorHint =
+          separator === '=' ? ' Despues de ese nombre debe ir `:` y no `=`.' : '';
+
+        return formatLocatedHint(
+          sourceText,
+          absoluteIndex,
+          `Escribiste \`${actualName}\`, pero debe ser \`${expectedName}\`.${separatorHint}`,
+        );
+      }
+    }
+  }
+
+  return null;
+}
+
 function findMissingColonHint(expectedText: string, sourceText: string) {
   const expectedCompact = compactCodeText(expectedText);
   const sourceCompact = compactCodeText(sourceText);
@@ -224,6 +303,7 @@ function findPreciseSyntaxHint(expectedText: string, sourceText: string) {
   }
 
   return (
+    findPropertyLikeHint(expectedText, sourceText) ??
     findExtraCommaHint(expectedText, sourceText) ??
     findExtraSemicolonHint(expectedText, sourceText) ??
     findMissingColonHint(expectedText, sourceText) ??

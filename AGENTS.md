@@ -41,3 +41,4 @@
 - Avoid generic syntax feedback when a more precise correction can be inferred from the student's code.
 - Code writing areas should show line numbers and the current line/column when feasible, especially in learning units.
 - Error feedback should mention the most precise location available, ideally line and column plus the exact symbol or structure to correct.
+- When the student is close because of a typo in an identifier or because they used `=` instead of `:`, the feedback should say that exact mistake instead of a generic "falta ...".
