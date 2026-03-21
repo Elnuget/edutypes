@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import HomePage from './components/HomePage';
 import UnitOnePage from './components/UnitOnePage';
 import { unitOneLessons } from './data/unit-one';
+import { unitThreeLessons } from './data/unit-three';
 import { unitTwoLessons } from './data/unit-two';
 import type { UnitLesson } from './data/unit-types';
 import {
@@ -14,10 +15,11 @@ import {
   type UnitProgress,
 } from './lib/unit-progress';
 
-type Route = 'home' | 'unit-01' | 'unit-02';
+type Route = 'home' | 'unit-01' | 'unit-02' | 'unit-03';
 
 const UNIT_ONE_STORAGE_KEY = 'edutypes.unit-01.progress';
 const UNIT_TWO_STORAGE_KEY = 'edutypes.unit-02.progress';
+const UNIT_THREE_STORAGE_KEY = 'edutypes.unit-03.progress';
 
 function getRouteFromHash(): Route {
   if (window.location.hash === '#unidad-1') {
@@ -26,6 +28,10 @@ function getRouteFromHash(): Route {
 
   if (window.location.hash === '#unidad-2') {
     return 'unit-02';
+  }
+
+  if (window.location.hash === '#unidad-3') {
+    return 'unit-03';
   }
 
   return 'home';
@@ -38,6 +44,9 @@ function App() {
   );
   const [unitTwoProgress, setUnitTwoProgress] = useState<UnitProgress>(() =>
     readUnitProgress(UNIT_TWO_STORAGE_KEY, unitTwoLessons),
+  );
+  const [unitThreeProgress, setUnitThreeProgress] = useState<UnitProgress>(() =>
+    readUnitProgress(UNIT_THREE_STORAGE_KEY, unitThreeLessons),
   );
 
   useEffect(() => {
@@ -64,6 +73,10 @@ function App() {
     saveUnitProgress(UNIT_TWO_STORAGE_KEY, unitTwoProgress);
   }, [unitTwoProgress]);
 
+  useEffect(() => {
+    saveUnitProgress(UNIT_THREE_STORAGE_KEY, unitThreeProgress);
+  }, [unitThreeProgress]);
+
   const goToHome = () => {
     window.location.hash = '';
   };
@@ -74,6 +87,10 @@ function App() {
 
   const goToUnitTwo = () => {
     window.location.hash = 'unidad-2';
+  };
+
+  const goToUnitThree = () => {
+    window.location.hash = 'unidad-3';
   };
 
   const updateExerciseDraft = (
@@ -185,12 +202,24 @@ function App() {
     setUnitTwoProgress(createInitialProgress(unitTwoLessons[0].id));
   };
 
+  const resetUnitThreeProgress = () => {
+    setUnitThreeProgress(createInitialProgress(unitThreeLessons[0].id));
+  };
+
   const unitOneCompletedLessons = getCompletedLessonsCount(unitOneLessons, unitOneProgress);
   const unitTwoCompletedLessons = getCompletedLessonsCount(unitTwoLessons, unitTwoProgress);
   const unitOneCompleted = unitOneCompletedLessons === unitOneLessons.length;
+  const unitTwoCompleted = unitTwoCompletedLessons === unitTwoLessons.length;
   const unitTwoUnlocked = unitOneCompleted;
+  const unitThreeCompletedLessons = getCompletedLessonsCount(unitThreeLessons, unitThreeProgress);
+  const unitThreeUnlocked = unitTwoCompleted;
 
   if (route === 'unit-02' && !unitTwoUnlocked) {
+    window.location.hash = '';
+    return null;
+  }
+
+  if (route === 'unit-03' && !unitThreeUnlocked) {
     window.location.hash = '';
     return null;
   }
@@ -249,6 +278,33 @@ function App() {
     );
   }
 
+  if (route === 'unit-03') {
+    return (
+      <UnitOnePage
+        unitLabel="Unidad 3"
+        lessons={unitThreeLessons}
+        progress={unitThreeProgress}
+        onBack={goToHome}
+        onChangeDraft={(lessonId, exerciseId, value) =>
+          updateExerciseDraft(setUnitThreeProgress, lessonId, exerciseId, value)
+        }
+        onCompleteLesson={(lessonId) =>
+          completeLesson(unitThreeLessons, setUnitThreeProgress, lessonId)
+        }
+        onResetProgress={resetUnitThreeProgress}
+        onSelectLesson={(lessonId) =>
+          selectLesson(unitThreeLessons, unitThreeProgress, setUnitThreeProgress, lessonId)
+        }
+        onSetLessonStage={(lessonId, stageIndex) =>
+          setLessonStage(setUnitThreeProgress, lessonId, stageIndex)
+        }
+        onSetExerciseValidated={(lessonId, exerciseId, validated) =>
+          setExerciseValidated(setUnitThreeProgress, lessonId, exerciseId, validated)
+        }
+      />
+    );
+  }
+
   return (
     <HomePage
       unitOneCompletedLessons={unitOneCompletedLessons}
@@ -257,8 +313,12 @@ function App() {
       unitTwoCompletedLessons={unitTwoCompletedLessons}
       unitTwoTotalLessons={unitTwoLessons.length}
       unitTwoUnlocked={unitTwoUnlocked}
+      unitThreeCompletedLessons={unitThreeCompletedLessons}
+      unitThreeTotalLessons={unitThreeLessons.length}
+      unitThreeUnlocked={unitThreeUnlocked}
       onOpenUnitOne={goToUnitOne}
       onOpenUnitTwo={goToUnitTwo}
+      onOpenUnitThree={goToUnitThree}
     />
   );
 }

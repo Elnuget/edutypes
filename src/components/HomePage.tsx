@@ -5,8 +5,12 @@ type HomePageProps = {
   unitTwoCompletedLessons: number;
   unitTwoTotalLessons: number;
   unitTwoUnlocked: boolean;
+  unitThreeCompletedLessons: number;
+  unitThreeTotalLessons: number;
+  unitThreeUnlocked: boolean;
   onOpenUnitOne: () => void;
   onOpenUnitTwo: () => void;
+  onOpenUnitThree: () => void;
 };
 
 function HomePage({
@@ -16,8 +20,12 @@ function HomePage({
   unitTwoCompletedLessons,
   unitTwoTotalLessons,
   unitTwoUnlocked,
+  unitThreeCompletedLessons,
+  unitThreeTotalLessons,
+  unitThreeUnlocked,
   onOpenUnitOne,
   onOpenUnitTwo,
+  onOpenUnitThree,
 }: HomePageProps) {
   return (
     <div className="page-shell page-shell--home">
@@ -62,6 +70,19 @@ function HomePage({
                   : 'Se desbloquea al completar la Unidad 1'}
               </span>
             </button>
+
+            <button
+              className={`unit-card ${!unitThreeUnlocked ? 'unit-card--locked' : ''}`}
+              disabled={!unitThreeUnlocked}
+              onClick={onOpenUnitThree}
+            >
+              <strong>Unidad 3</strong>
+              <span>
+                {unitThreeUnlocked
+                  ? `${unitThreeCompletedLessons}/${unitThreeTotalLessons} lecciones`
+                  : 'Se desbloquea al completar la Unidad 2'}
+              </span>
+            </button>
           </div>
 
           <div className="home-card__actions">
@@ -71,6 +92,11 @@ function HomePage({
             {unitTwoUnlocked ? (
               <button className="button button--secondary" onClick={onOpenUnitTwo}>
                 {unitTwoCompletedLessons > 0 ? 'Continuar unidad 2' : 'Empezar unidad 2'}
+              </button>
+            ) : null}
+            {unitThreeUnlocked ? (
+              <button className="button button--secondary" onClick={onOpenUnitThree}>
+                {unitThreeCompletedLessons > 0 ? 'Continuar unidad 3' : 'Empezar unidad 3'}
               </button>
             ) : null}
           </div>

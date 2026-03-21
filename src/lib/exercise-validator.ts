@@ -1,4 +1,5 @@
 import { unitOneLessons } from '../data/unit-one';
+import { unitThreeLessons } from '../data/unit-three';
 import { unitTwoLessons } from '../data/unit-two';
 import type { ExerciseCheck } from '../data/unit-types';
 
@@ -373,7 +374,7 @@ function explainCompilerDiagnostic(
 }
 
 function findExerciseDefinition(exerciseId: string) {
-  for (const lessons of [unitOneLessons, unitTwoLessons]) {
+  for (const lessons of [unitOneLessons, unitTwoLessons, unitThreeLessons]) {
     for (const lesson of lessons) {
       const exercise = lesson.exercises.find((item) => item.id === exerciseId);
       if (exercise) {
