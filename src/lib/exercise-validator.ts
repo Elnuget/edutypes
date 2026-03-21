@@ -1,4 +1,6 @@
-import { unitOneLessons, type ExerciseCheck } from '../data/unit-one';
+import { unitOneLessons } from '../data/unit-one';
+import { unitTwoLessons } from '../data/unit-two';
+import type { ExerciseCheck } from '../data/unit-types';
 
 export type ExerciseValidationResult = {
   ok: boolean;
@@ -7,6 +9,8 @@ export type ExerciseValidationResult = {
   compilerErrors: string[];
   ruleErrors: string[];
   compilerOk: boolean;
+  runtimeOutput: string[];
+  runtimeError: string | null;
 };
 
 type RuleValidationResult = {
@@ -369,10 +373,12 @@ function explainCompilerDiagnostic(
 }
 
 function findExerciseDefinition(exerciseId: string) {
-  for (const lesson of unitOneLessons) {
-    const exercise = lesson.exercises.find((item) => item.id === exerciseId);
-    if (exercise) {
-      return exercise;
+  for (const lessons of [unitOneLessons, unitTwoLessons]) {
+    for (const lesson of lessons) {
+      const exercise = lesson.exercises.find((item) => item.id === exerciseId);
+      if (exercise) {
+        return exercise;
+      }
     }
   }
 
@@ -469,6 +475,62 @@ function formatDiagnostic(ts: TsModule, diagnostic: import('typescript').Diagnos
   );
 
   return `Linea ${line + 1}, columna ${character + 1}: ${message}`;
+}
+
+function formatRuntimeValue(value: unknown) {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    value === null ||
+    value === undefined
+  ) {
+    return String(value);
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '[valor no serializable]';
+  }
+}
+
+function executeExerciseCode(ts: TsModule, sourceText: string) {
+  const runtimeOutput: string[] = [];
+
+  const transpiled = ts.transpileModule(sourceText, {
+    fileName: EXERCISE_FILE,
+    compilerOptions: {
+      target: ts.ScriptTarget.ES2022,
+      module: ts.ModuleKind.None,
+      strict: true,
+    },
+  });
+
+  const fakeConsole = {
+    log: (...args: unknown[]) => {
+      runtimeOutput.push(args.map((arg) => formatRuntimeValue(arg)).join(' '));
+    },
+  };
+
+  try {
+    const runner = new Function('console', transpiled.outputText);
+    runner(fakeConsole);
+
+    return {
+      output: runtimeOutput,
+      error: null,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Error desconocido de ejecucion.';
+    return {
+      output: runtimeOutput,
+      error: `Ejecucion: ${message}`,
+    };
+  }
 }
 
 function getCompilerErrors(ts: TsModule, sourceText: string) {
@@ -1009,12 +1071,20 @@ export async function validateExerciseWithCompiler(
 ): Promise<ExerciseValidationResult> {
   const ts = await import('typescript');
   const { sourceFile, errors: compilerErrors } = getCompilerErrors(ts, sourceText);
+  const runtimeResult =
+    compilerErrors.length === 0
+      ? executeExerciseCode(ts, sourceText)
+      : { output: [], error: null as string | null };
 
   const validator = validators[exerciseId];
 
   if (!validator) {
     const lessonCheckResult = validateWithLessonChecks(exerciseId, sourceText);
-    const errors = [...compilerErrors, ...lessonCheckResult.errors];
+    const errors = [
+      ...compilerErrors,
+      ...(runtimeResult.error ? [runtimeResult.error] : []),
+      ...lessonCheckResult.errors,
+    ];
 
     return {
       ok: errors.length === 0,
@@ -1028,11 +1098,17 @@ export async function validateExerciseWithCompiler(
       compilerErrors,
       ruleErrors: lessonCheckResult.errors,
       compilerOk: compilerErrors.length === 0,
+      runtimeOutput: runtimeResult.output,
+      runtimeError: runtimeResult.error,
     };
   }
 
   const result = validator(ts, sourceFile);
-  const errors = [...compilerErrors, ...result.errors];
+  const errors = [
+    ...compilerErrors,
+    ...(runtimeResult.error ? [runtimeResult.error] : []),
+    ...result.errors,
+  ];
 
   return {
     ok: errors.length === 0,
@@ -1041,5 +1117,7 @@ export async function validateExerciseWithCompiler(
     compilerErrors,
     ruleErrors: result.errors,
     compilerOk: compilerErrors.length === 0,
+    runtimeOutput: runtimeResult.output,
+    runtimeError: runtimeResult.error,
   };
 }

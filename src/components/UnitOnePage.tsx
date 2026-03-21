@@ -3,7 +3,7 @@ import type {
   LessonExercise,
   LessonContentBlock,
   UnitLesson,
-} from '../data/unit-one';
+} from '../data/unit-types';
 import { validateExerciseWithCompiler } from '../lib/exercise-validator';
 import {
   getCompletedLessonsCount,
@@ -14,6 +14,7 @@ import {
 } from '../lib/unit-progress';
 
 type UnitOnePageProps = {
+  unitLabel: string;
   lessons: UnitLesson[];
   progress: UnitProgress;
   onBack: () => void;
@@ -144,6 +145,7 @@ function buildLessonStages(lesson: UnitLesson): LessonStage[] {
 }
 
 function UnitOnePage({
+  unitLabel,
   lessons,
   progress,
   onBack,
@@ -163,6 +165,8 @@ function UnitOnePage({
   const [editorCursor, setEditorCursor] = useState({ line: 1, column: 1 });
   const [editorWidth, setEditorWidth] = useState(0);
   const [logicalLineHeights, setLogicalLineHeights] = useState<number[]>([]);
+  const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
+  const [consoleError, setConsoleError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const gutterRef = useRef<HTMLDivElement | null>(null);
   const lineMeasureRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -194,6 +198,8 @@ function UnitOnePage({
     setPasteNotice(null);
     setFeedback(null);
     setEditorCursor({ line: 1, column: 1 });
+    setConsoleOutput([]);
+    setConsoleError(null);
   }, [activeLesson.id, activeStageIndex]);
 
   useEffect(() => {
@@ -265,6 +271,8 @@ function UnitOnePage({
       } catch {
         setIsReviewing(false);
         onSetExerciseValidated(activeLesson.id, activeExercise.id, false);
+        setConsoleOutput([]);
+        setConsoleError(null);
         setFeedback({
           tone: 'error',
           text: 'No pude revisar tu ejercicio con el compilador en este intento.',
@@ -273,6 +281,8 @@ function UnitOnePage({
       }
 
       setIsReviewing(false);
+      setConsoleOutput(result.runtimeOutput);
+      setConsoleError(result.runtimeError);
 
       if (!result.ok) {
         onSetExerciseValidated(activeLesson.id, activeExercise.id, false);
@@ -321,7 +331,7 @@ function UnitOnePage({
 
     setFeedback({
       tone: 'success',
-      text: 'Unidad 1 completada.',
+      text: `${unitLabel} completada.`,
     });
   };
 
@@ -335,7 +345,7 @@ function UnitOnePage({
             </button>
 
             <div className="lesson-frame__status">
-              <span className="tag">Unidad 1</span>
+              <span className="tag">{unitLabel}</span>
               <span className="lesson-frame__counter">
                 {activeStageIndex + 1}/{stages.length}
               </span>
@@ -423,6 +433,8 @@ function UnitOnePage({
                       value={activeDraft}
                       onChange={(event) => {
                         setFeedback(null);
+                        setConsoleOutput([]);
+                        setConsoleError(null);
                         updateCursorFromTextarea(event.target);
                         onChangeDraft(activeLesson.id, activeStage.exercise.id, event.target.value);
                       }}
@@ -469,6 +481,21 @@ function UnitOnePage({
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  <div className="console-card">
+                    <div className="console-card__label">Consola</div>
+                    {consoleError ? (
+                      <p className="console-card__error">{consoleError}</p>
+                    ) : consoleOutput.length > 0 ? (
+                      <pre className="console-card__output">
+                        {consoleOutput.join('\n')}
+                      </pre>
+                    ) : (
+                      <p className="console-card__empty">
+                        Aun no hay salida. Usa `console.log(...)` si quieres ver resultado.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

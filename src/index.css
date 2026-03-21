@@ -175,6 +175,35 @@ a {
   gap: 10px;
 }
 
+.home-card__units {
+  display: grid;
+  gap: 10px;
+}
+
+.unit-card {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  text-align: left;
+  color: var(--text);
+}
+
+.unit-card strong {
+  font-size: 1rem;
+}
+
+.unit-card span {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.unit-card--locked {
+  opacity: 0.6;
+}
+
 .home-card h1,
 .stage-card h1 {
   margin: 0;
@@ -465,6 +494,44 @@ pre {
   background: #fff0ee;
   border-color: #e8b8b1;
   color: #b24536;
+}
+
+.console-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #fff8f0;
+}
+
+.console-card__label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.console-card__empty,
+.console-card__error {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.console-card__error {
+  color: #b24536;
+}
+
+.console-card__output {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #243346;
+  font-size: 0.92rem;
+  white-space: pre-wrap;
 }
 
 .lesson-frame__actions {

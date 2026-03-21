@@ -1,4 +1,4 @@
-import type { UnitLesson } from '../data/unit-one';
+import type { UnitLesson } from '../data/unit-types';
 
 export type UnitProgress = {
   activeLessonId: string;
@@ -7,8 +7,6 @@ export type UnitProgress = {
   stageIndexes: Record<string, number>;
   validatedExercises: Record<string, Record<string, boolean>>;
 };
-
-const UNIT_ONE_STORAGE_KEY = 'edutypes.unit-01.progress';
 
 export function createInitialProgress(firstLessonId: string): UnitProgress {
   return {
@@ -77,12 +75,12 @@ function normalizeProgress(
   };
 }
 
-export function readUnitProgress(lessons: UnitLesson[]): UnitProgress {
+export function readUnitProgress(storageKey: string, lessons: UnitLesson[]): UnitProgress {
   if (typeof window === 'undefined') {
     return createInitialProgress(lessons[0].id);
   }
 
-  const raw = window.localStorage.getItem(UNIT_ONE_STORAGE_KEY);
+  const raw = window.localStorage.getItem(storageKey);
 
   if (!raw) {
     return createInitialProgress(lessons[0].id);
@@ -95,12 +93,12 @@ export function readUnitProgress(lessons: UnitLesson[]): UnitProgress {
   }
 }
 
-export function saveUnitProgress(progress: UnitProgress) {
+export function saveUnitProgress(storageKey: string, progress: UnitProgress) {
   if (typeof window === 'undefined') {
     return;
   }
 
-  window.localStorage.setItem(UNIT_ONE_STORAGE_KEY, JSON.stringify(progress));
+  window.localStorage.setItem(storageKey, JSON.stringify(progress));
 }
 
 export function isLessonCompleted(progress: UnitProgress, lessonId: string) {
