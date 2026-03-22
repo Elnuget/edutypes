@@ -42,6 +42,8 @@
 - Foundational units must follow a strict ascending or pyramid order: first isolate one symbol or piece, then combine it with the next one.
 - Do not make the student use a syntax piece in an exercise before that piece has already been explained alone in a short card.
 - When a new TypeScript feature appears in a later unit, prefer this ladder: define the syntax, explain the key symbols, use it in a real declaration, then show a visible console result.
+- If an exercise expects an object, interface, alias, or array type inside a parameter, write that expected parameter shape explicitly in the instructions instead of saying only "de tipo objeto" or similar.
+- When a student declares a value above but forgets the parameter type in a function, feedback should clarify that declaring the value outside does not type the parameter automatically.
 - Code writing areas should show line numbers and the current line/column when feasible, especially in learning units.
 - Error feedback should mention the most precise location available, ideally line and column plus the exact symbol or structure to correct.
 - When the student is close because of a typo in an identifier or because they used `=` instead of `:`, the feedback should say that exact mistake instead of a generic "falta ...".

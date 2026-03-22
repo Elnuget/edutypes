@@ -848,6 +848,7 @@ function validatePrintStudent(
   const successes: string[] = [];
   const errors: string[] = [];
   const fn = getFunctionDeclaration(ts, sourceFile, 'printStudent');
+  const sourceText = sourceFile.getFullText();
 
   if (!fn) {
     errors.push('No encontre la funcion `printStudent`.');
@@ -857,13 +858,29 @@ function validatePrintStudent(
   successes.push('La funcion `printStudent` existe.');
 
   const param = fn.parameters.find((parameter) => parameter.name.getText(sourceFile) === 'student');
-  if (!param || !param.type || !ts.isTypeLiteralNode(param.type)) {
-    errors.push('La funcion debe recibir un parametro `student` tipado como objeto.');
+  if (!param) {
+    errors.push('La funcion debe recibir un parametro `student`.');
+  } else if (!param.type) {
+    errors.push(
+      formatLocatedHint(
+        sourceText,
+        param.name.getEnd(),
+        'Despues de `student` te falta `: { name: string; completed: number }`.',
+      ),
+    );
+  } else if (!ts.isTypeLiteralNode(param.type)) {
+    errors.push('El parametro `student` debe tiparse como objeto.');
   } else {
     const memberNames = param.type.members.map((member) => member.name?.getText(sourceFile));
-    if (!memberNames.includes('name') || !memberNames.includes('completed')) {
-      errors.push('El parametro `student` debe incluir `name` y `completed`.');
-    } else {
+    if (!memberNames.includes('name')) {
+      errors.push('Dentro del tipo de `student` falta la propiedad `name`.');
+    }
+
+    if (!memberNames.includes('completed')) {
+      errors.push('Dentro del tipo de `student` falta la propiedad `completed`.');
+    }
+
+    if (memberNames.includes('name') && memberNames.includes('completed')) {
       successes.push('El parametro `student` esta tipado correctamente.');
     }
   }

@@ -704,7 +704,7 @@ export const unitOneLessons: UnitLesson[] = [
         id: 'u1-l2-c6-e1',
         title: 'Ejercicio 11: funcion con objeto',
         instructions: [
-          'Escribe `readStudent` con un parametro `student` de tipo objeto.',
+          'Escribe `readStudent` con el parametro `student: { name: string; level: number }`.',
           'Debe devolver `string` usando `student.name`.',
         ],
         placeholder:
@@ -735,7 +735,8 @@ export const unitOneLessons: UnitLesson[] = [
         id: 'u1-l2-c6-e2',
         title: 'Ejercicio 12: otra funcion con objeto',
         instructions: [
-          'Escribe `readBadge` con un parametro `badge` de tipo objeto.',
+          'Escribe `readBadge` con el parametro `badge: { label: string; unlocked: boolean }`.',
+          'No basta con declarar `badge` arriba: ese tipo tambien debe ir dentro del parametro.',
           'Debe devolver `boolean` usando `badge.unlocked`.',
         ],
         placeholder: '',
