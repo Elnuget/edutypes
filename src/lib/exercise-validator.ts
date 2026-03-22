@@ -889,6 +889,66 @@ function validatePrintStudent(
   return { ok: errors.length === 0, successes, errors };
 }
 
+function validateReadBadgeExercise(
+  ts: TsModule,
+  sourceFile: import('typescript').SourceFile,
+): RuleValidationResult {
+  const successes: string[] = [];
+  const errors: string[] = [];
+  const fn = getFunctionDeclaration(ts, sourceFile, 'readBadge');
+  const sourceText = sourceFile.getFullText();
+
+  if (!fn) {
+    errors.push('No encontre la funcion `readBadge`.');
+    return { ok: false, successes, errors };
+  }
+
+  successes.push('La funcion `readBadge` existe.');
+
+  const param = fn.parameters.find((parameter) => parameter.name.getText(sourceFile) === 'badge');
+  if (!param) {
+    errors.push('La funcion debe recibir un parametro `badge`.');
+  } else if (!param.type) {
+    errors.push(
+      formatLocatedHint(
+        sourceText,
+        param.name.getEnd(),
+        'Despues de `badge` te falta `: { label: string; unlocked: boolean }`.',
+      ),
+    );
+  } else if (!ts.isTypeLiteralNode(param.type)) {
+    errors.push('El parametro `badge` debe tiparse como objeto.');
+  } else {
+    const memberNames = param.type.members.map((member) => member.name?.getText(sourceFile));
+
+    if (!memberNames.includes('label')) {
+      errors.push('Dentro del tipo de `badge` falta la propiedad `label`.');
+    }
+
+    if (!memberNames.includes('unlocked')) {
+      errors.push('Dentro del tipo de `badge` falta la propiedad `unlocked`.');
+    }
+
+    if (memberNames.includes('label') && memberNames.includes('unlocked')) {
+      successes.push('El parametro `badge` tiene el tipo de objeto correcto.');
+    }
+  }
+
+  if (!isKeywordType(ts, fn.type, 'boolean')) {
+    errors.push('`readBadge` debe devolver `boolean`.');
+  } else {
+    successes.push('La funcion declara retorno `boolean`.');
+  }
+
+  if (!hasPropertyAccessText(ts, fn, 'badge.unlocked', sourceFile)) {
+    errors.push('Dentro de `readBadge` falta usar `badge.unlocked`.');
+  } else {
+    successes.push('La funcion usa `badge.unlocked`.');
+  }
+
+  return { ok: errors.length === 0, successes, errors };
+}
+
 function validateTopicsArray(
   ts: TsModule,
   sourceFile: import('typescript').SourceFile,
@@ -1060,6 +1120,7 @@ const validators: Record<
   'typed-function': validateTypedFunction,
   'student-object': validateStudentObject,
   'student-summary': validatePrintStudent,
+  'u1-l2-c6-e2': validateReadBadgeExercise,
   'topics-array': validateTopicsArray,
   'lesson-tuple': validateLessonTuple,
   'lesson-model': validateLessonModel,
