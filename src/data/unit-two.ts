@@ -1028,8 +1028,8 @@ export const unitTwoLessons: UnitLesson[] = [
         id: 'u2-l5-c4-e1',
         title: 'Ejercicio 7: prueba texto',
         instructions: [
-          'Escribe una sola linea con `printValue(\'hola\')`.',
-          'La consola debe mostrar la rama string.',
+          'Si ya no esta escrita arriba, vuelve a escribir `printValue` completa.',
+          'Debajo escribe `printValue(\'hola\')`. La consola debe mostrar la rama string.',
         ],
         placeholder: "printValue('hola');",
         minLength: 12,
@@ -1046,8 +1046,8 @@ export const unitTwoLessons: UnitLesson[] = [
         id: 'u2-l5-c4-e2',
         title: 'Ejercicio 8: prueba numero',
         instructions: [
-          'Escribe una sola linea con `printValue(42)`.',
-          'La consola debe mostrar la rama number.',
+          'Si ya no esta escrita arriba, vuelve a escribir `printValue` completa.',
+          'Debajo escribe `printValue(42)`. La consola debe mostrar la rama number.',
         ],
         placeholder: '',
         minLength: 10,
@@ -1252,8 +1252,8 @@ export const unitTwoLessons: UnitLesson[] = [
         id: 'u2-l6-c4-e1',
         title: 'Ejercicio 7: prueba text',
         instructions: [
-          'Escribe una sola linea con `printEvent({ kind: \'text\', message: \'hola\' })`.',
-          'La consola debe mostrar la rama text.',
+          'Si ya no esta escrita arriba, vuelve a escribir `printEvent` completa.',
+          'Debajo escribe `printEvent({ kind: \'text\', message: \'hola\' })`. La consola debe mostrar la rama text.',
         ],
         placeholder:
           "printEvent({ kind: 'text', message: 'hola' });",
@@ -1271,8 +1271,8 @@ export const unitTwoLessons: UnitLesson[] = [
         id: 'u2-l6-c4-e2',
         title: 'Ejercicio 8: prueba count',
         instructions: [
-          'Escribe una sola linea con `printEvent({ kind: \'count\', total: 3 })`.',
-          'La consola debe mostrar la rama count.',
+          'Si ya no esta escrita arriba, vuelve a escribir `printEvent` completa.',
+          'Debajo escribe `printEvent({ kind: \'count\', total: 3 })`. La consola debe mostrar la rama count.',
         ],
         placeholder: '',
         minLength: 34,

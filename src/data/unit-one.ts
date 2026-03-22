@@ -705,7 +705,7 @@ export const unitOneLessons: UnitLesson[] = [
         title: 'Ejercicio 11: funcion con objeto',
         instructions: [
           'Escribe `readStudent` con el parametro `student: { name: string; level: number }`.',
-          'Debe devolver `string` usando `student.name`.',
+          'Debe devolver `string` con `return student.name;`.',
         ],
         placeholder:
           "function readStudent(student: { name: string; level: number }): string {\n  return student.name;\n}",
@@ -737,7 +737,7 @@ export const unitOneLessons: UnitLesson[] = [
         instructions: [
           'Escribe `readBadge` con el parametro `badge: { label: string; unlocked: boolean }`.',
           'No basta con declarar `badge` arriba: ese tipo tambien debe ir dentro del parametro.',
-          'Debe devolver `boolean` usando `badge.unlocked`.',
+          'Debe devolver `boolean` con `return badge.unlocked;`.',
         ],
         placeholder: '',
         minLength: 92,
@@ -766,8 +766,8 @@ export const unitOneLessons: UnitLesson[] = [
         id: 'u1-l2-c7-e1',
         title: 'Ejercicio 13: consola con propiedad',
         instructions: [
-          'Escribe una sola linea con [[console.log(student.name)]].',
-          'La idea es ver solo esa propiedad en consola.',
+          'Si ya no esta escrito arriba, vuelve a escribir `student` completo.',
+          'Debajo usa [[console.log(student.name)]]. La consola debe mostrar solo esa propiedad.',
         ],
         placeholder: 'console.log(student.name);',
         minLength: 18,
@@ -784,8 +784,8 @@ export const unitOneLessons: UnitLesson[] = [
         id: 'u1-l2-c7-e2',
         title: 'Ejercicio 14: consola con otra propiedad',
         instructions: [
-          'Escribe una sola linea con `console.log(course.active)`.',
-          'Asi repites la misma lectura con otro dato.',
+          'Si ya no esta escrito arriba, vuelve a escribir `course` completo.',
+          'Debajo usa `console.log(course.active)`. La consola debe mostrar ese valor.',
         ],
         placeholder: '',
         minLength: 18,
@@ -997,7 +997,7 @@ export const unitOneLessons: UnitLesson[] = [
         title: 'Ejercicio 7: cuenta con length',
         instructions: [
           'Escribe `countTopics` con parametro `topics: string[]`.',
-          'Debe devolver `number` usando `topics.length`.',
+          'Debe devolver `number` con `return topics.length;`.',
         ],
         placeholder:
           "function countTopics(topics: string[]): number {\n  return topics.length;\n}",
@@ -1022,7 +1022,7 @@ export const unitOneLessons: UnitLesson[] = [
         title: 'Ejercicio 8: otra funcion de conteo',
         instructions: [
           'Escribe `countLabels` con parametro `labels: string[]`.',
-          'Tambien debe devolver `number` usando `labels.length`.',
+          'Tambien debe devolver `number` con `return labels.length;`.',
         ],
         placeholder: '',
         minLength: 72,
@@ -1082,7 +1082,7 @@ export const unitOneLessons: UnitLesson[] = [
         title: 'Ejercicio 11: primer elemento por funcion',
         instructions: [
           'Escribe `firstTopic` con parametro `topics: string[]`.',
-          'Debe devolver `string` usando `topics[0]`.',
+          'Debe devolver `string` con `return topics[0];`.',
         ],
         placeholder:
           "function firstTopic(topics: string[]): string {\n  return topics[0];\n}",
@@ -1107,7 +1107,7 @@ export const unitOneLessons: UnitLesson[] = [
         title: 'Ejercicio 12: segundo elemento por funcion',
         instructions: [
           'Escribe `secondTopic` con parametro `topics: string[]`.',
-          'Debe devolver `string` usando `topics[1]`.',
+          'Debe devolver `string` con `return topics[1];`.',
         ],
         placeholder: '',
         minLength: 68,
@@ -1130,8 +1130,8 @@ export const unitOneLessons: UnitLesson[] = [
         id: 'u1-l3-c7-e1',
         title: 'Ejercicio 13: consola con posicion',
         instructions: [
-          'Escribe una sola linea con [[console.log(topics[0])]].',
-          'La consola debe mostrar el primer tema.',
+          'Si ya no esta escrito arriba, vuelve a escribir `topics` completo.',
+          'Debajo usa [[console.log(topics[0])]]. La consola debe mostrar el primer tema.',
         ],
         placeholder: 'console.log(topics[0]);',
         minLength: 18,
@@ -1148,8 +1148,8 @@ export const unitOneLessons: UnitLesson[] = [
         id: 'u1-l3-c7-e2',
         title: 'Ejercicio 14: consola con total',
         instructions: [
-          'Escribe una sola linea con `console.log(topics.length)`.',
-          'La consola debe mostrar cuantas posiciones tiene la lista.',
+          'Si ya no esta escrito arriba, vuelve a escribir `topics` completo.',
+          'Debajo usa `console.log(topics.length)`. La consola debe mostrar cuantas posiciones tiene la lista.',
         ],
         placeholder: '',
         minLength: 18,
@@ -1443,7 +1443,7 @@ export const unitOneLessons: UnitLesson[] = [
         title: 'Ejercicio 9: usa join',
         instructions: [
           'Escribe `showTagList` con parametro `tags: string[]`.',
-          'Debe devolver `string` usando `tags.join`.',
+          'Debe devolver `string` con `return tags.join(\', \');`.',
         ],
         placeholder:
           "function showTagList(tags: string[]): string {\n  return tags.join(', ');\n}",
@@ -1522,8 +1522,8 @@ export const unitOneLessons: UnitLesson[] = [
         id: 'u1-l4-c6-e2',
         title: 'Ejercicio 12: consola con tags',
         instructions: [
-          'Escribe una sola linea con `console.log(tags.join(\', \'))`.',
-          'Asi ves el texto final de las etiquetas.',
+          'Si ya no esta escrito arriba, vuelve a escribir `tags` completo.',
+          'Debajo usa `console.log(tags.join(\', \'))`. Asi ves el texto final de las etiquetas.',
         ],
         placeholder: '',
         minLength: 26,
@@ -1571,8 +1571,8 @@ export const unitOneLessons: UnitLesson[] = [
         id: 'u1-l4-c7-e2',
         title: 'Ejercicio 14: muestra summary final',
         instructions: [
-          'Escribe una sola linea con [[console.log(summary)]].',
-          'Este es el cierre del flujo completo.',
+          'Si ya no esta escrito arriba, vuelve a escribir `const summary = summarizeLesson(...)`.',
+          'Debajo usa [[console.log(summary)]]. Este es el cierre del flujo completo.',
         ],
         placeholder: '',
         minLength: 18,

@@ -1316,8 +1316,8 @@ export const unitThreeLessons: UnitLesson[] = [
         id: 'u3-l6-c4-e2',
         title: 'Ejercicio 8: consola con static',
         instructions: [
-          'Escribe una sola linea con `console.log(VideoLesson.totalCreated);`.',
-          'La consola debe mostrar el dato estatico de la clase.',
+          'Si ya no esta escrita arriba, vuelve a escribir `VideoLesson` completa.',
+          'Debajo usa `console.log(VideoLesson.totalCreated);`. La consola debe mostrar el dato estatico de la clase.',
         ],
         placeholder: '',
         minLength: 26,

@@ -44,6 +44,8 @@
 - When a new TypeScript feature appears in a later unit, prefer this ladder: define the syntax, explain the key symbols, use it in a real declaration, then show a visible console result.
 - If an exercise expects an object, interface, alias, or array type inside a parameter, write that expected parameter shape explicitly in the instructions instead of saying only "de tipo objeto" or similar.
 - When a student declares a value above but forgets the parameter type in a function, feedback should clarify that declaring the value outside does not type the parameter automatically.
+- If an exercise expects a specific return type or a specific `return ...` expression, write that expectation explicitly in the instructions instead of only saying "debe devolver".
+- If an exercise expects visible output, the instructions must say exactly what should be shown in the console and whether the student must also retype the variable, function, or class that produces that output.
 - Code writing areas should show line numbers and the current line/column when feasible, especially in learning units.
 - Error feedback should mention the most precise location available, ideally line and column plus the exact symbol or structure to correct.
 - When the student is close because of a typo in an identifier or because they used `=` instead of `:`, the feedback should say that exact mistake instead of a generic "falta ...".

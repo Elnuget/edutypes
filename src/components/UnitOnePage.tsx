@@ -82,6 +82,22 @@ function getEditorCursor(text: string, selectionStart: number) {
   };
 }
 
+function exerciseExpectsConsoleOutput(exercise: LessonExercise) {
+  const instructionText = exercise.instructions.join(' ').toLowerCase();
+
+  if (instructionText.includes('console.log') || instructionText.includes('consola')) {
+    return true;
+  }
+
+  return exercise.checks.some((check) => {
+    if (check.kind === 'includes') {
+      return check.needle.toLowerCase().includes('console.log');
+    }
+
+    return check.needles.some((needle) => needle.toLowerCase().includes('console.log'));
+  });
+}
+
 function buildLessonStages(lesson: UnitLesson): LessonStage[] {
   const introStage: LessonStage = {
     id: `${lesson.id}-intro`,
@@ -184,6 +200,9 @@ function UnitOnePage({
     activeStage.kind === 'exercise' ? activeStage.exercise : null;
   const activeExerciseValidated = activeExercise
     ? progress.validatedExercises[activeLesson.id]?.[activeExercise.id] === true
+    : false;
+  const activeExerciseExpectsConsole = activeExercise
+    ? exerciseExpectsConsoleOutput(activeExercise)
     : false;
   const activeDraft = activeExercise
     ? progress.drafts[activeLesson.id]?.[activeExercise.id] ?? ''
@@ -297,6 +316,17 @@ function UnitOnePage({
 
         if (result.ruleErrors.length > 0) {
           parts.push(`Objetivo del ejercicio: ${result.ruleErrors.join(' ')}`);
+        }
+
+        if (
+          activeExerciseExpectsConsole &&
+          result.compilerOk &&
+          !result.runtimeError &&
+          result.runtimeOutput.length === 0
+        ) {
+          parts.push(
+            'Salida visible: este ejercicio espera que aparezca algo en la consola de abajo. Revisa si tambien debes reescribir la variable, funcion o clase antes de usar `console.log(...)` o antes de hacer la llamada final.',
+          );
         }
 
         setFeedback({
@@ -493,7 +523,9 @@ function UnitOnePage({
                       </pre>
                     ) : (
                       <p className="console-card__empty">
-                        Aun no hay salida. Usa `console.log(...)` si quieres ver resultado.
+                        {activeExerciseExpectsConsole
+                          ? 'Este ejercicio espera una salida visible. Revisa que exista la variable, funcion o clase necesaria y que termines mostrando algo en consola.'
+                          : 'Aun no hay salida. Usa `console.log(...)` si quieres ver resultado.'}
                       </p>
                     )}
                   </div>
