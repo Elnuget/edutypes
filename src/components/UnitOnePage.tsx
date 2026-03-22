@@ -98,6 +98,29 @@ function exerciseExpectsConsoleOutput(exercise: LessonExercise) {
   });
 }
 
+function buildExerciseSuccessMessage(
+  result: Awaited<ReturnType<typeof validateExerciseWithCompiler>>,
+) {
+  const parts = ['Excelente. Este ejercicio ya quedo correcto.'];
+
+  parts.push('Compilacion TypeScript: correcta.');
+  parts.push('Objetivo del ejercicio: cumplido.');
+
+  if (result.successes.length > 0) {
+    parts.push(`Detecte: ${result.successes.join(', ')}.`);
+  }
+
+  if (result.runtimeOutput.length > 0) {
+    parts.push('Y ademas ya dejaste una salida visible en la consola.');
+  }
+
+  if (result.runtimeError) {
+    parts.push(`La consola aun marco este detalle: ${result.runtimeError}`);
+  }
+
+  return parts.join(' ');
+}
+
 function buildLessonStages(lesson: UnitLesson): LessonStage[] {
   const introStage: LessonStage = {
     id: `${lesson.id}-intro`,
@@ -278,6 +301,25 @@ function UnitOnePage({
     onSetLessonStage(activeLesson.id, boundedIndex);
   };
 
+  const handleResetProgress = () => {
+    const shouldReset = window.confirm(
+      '¿Estas seguro de reiniciar el progreso? Se borraran tus ejercicios, validaciones y avance guardado en esta unidad.',
+    );
+
+    if (!shouldReset) {
+      return;
+    }
+
+    onResetProgress();
+    setFeedback({
+      tone: 'success',
+      text: 'El progreso de esta unidad se reinicio por completo.',
+    });
+    setPasteNotice(null);
+    setConsoleOutput([]);
+    setConsoleError(null);
+  };
+
   const handlePrimaryAction = async () => {
     if (activeExercise && !activeExerciseValidated) {
       const draft = progress.drafts[activeLesson.id]?.[activeExercise.id] ?? '';
@@ -339,7 +381,7 @@ function UnitOnePage({
       onSetExerciseValidated(activeLesson.id, activeExercise.id, true);
       setFeedback({
         tone: 'success',
-        text: `Compilacion TypeScript: correcta. Objetivo del ejercicio: cumplido. Detecte: ${result.successes.join(', ')}.`,
+        text: buildExerciseSuccessMessage(result),
       });
       return;
     }
@@ -354,14 +396,14 @@ function UnitOnePage({
     if (nextLesson) {
       setFeedback({
         tone: 'success',
-        text: `Leccion completada. Sigue con ${nextLesson.title}.`,
+        text: `Muy bien. Cerraste esta leccion completa. Sigue con ${nextLesson.title}.`,
       });
       return;
     }
 
     setFeedback({
       tone: 'success',
-      text: `${unitLabel} completada.`,
+      text: `${unitLabel} completada. Terminaste toda esta unidad con exito.`,
     });
   };
 
@@ -583,7 +625,10 @@ function UnitOnePage({
           </footer>
 
           <div className="lesson-frame__bottom">
-            <button className="button button--ghost button--full" onClick={onResetProgress}>
+            <button
+              className="button button--ghost button--full"
+              onClick={handleResetProgress}
+            >
               Reiniciar progreso
             </button>
           </div>
