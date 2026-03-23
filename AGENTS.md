@@ -26,6 +26,8 @@
 - If content competes for space on mobile, stack it or turn it into horizontal step navigation.
 
 ## Course interaction rules
+- For new-course creation requests, consult `COURSE_RM.md` and treat it as the detailed replication manual for this repository.
+- For cross-repository or from-scratch course creation requests, consult `UNIVERSAL_COURSE_RM.md` as the generic course-design manual.
 - Lessons should be practical and code-first.
 - The student must type code manually; do not enable paste for lesson writing areas unless the user explicitly changes that requirement.
 - Every lesson should keep content brief, actionable, and easy to consume in short sessions.
