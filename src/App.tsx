@@ -212,6 +212,7 @@ function App() {
   const unitTwoCompleted = unitTwoCompletedLessons === unitTwoLessons.length;
   const unitTwoUnlocked = unitOneCompleted;
   const unitThreeCompletedLessons = getCompletedLessonsCount(unitThreeLessons, unitThreeProgress);
+  const unitThreeCompleted = unitThreeCompletedLessons === unitThreeLessons.length;
   const unitThreeUnlocked = unitTwoCompleted;
 
   if (route === 'unit-02' && !unitTwoUnlocked) {
@@ -312,9 +313,11 @@ function App() {
       unitOneCompleted={unitOneCompleted}
       unitTwoCompletedLessons={unitTwoCompletedLessons}
       unitTwoTotalLessons={unitTwoLessons.length}
+      unitTwoCompleted={unitTwoCompleted}
       unitTwoUnlocked={unitTwoUnlocked}
       unitThreeCompletedLessons={unitThreeCompletedLessons}
       unitThreeTotalLessons={unitThreeLessons.length}
+      unitThreeCompleted={unitThreeCompleted}
       unitThreeUnlocked={unitThreeUnlocked}
       onOpenUnitOne={goToUnitOne}
       onOpenUnitTwo={goToUnitTwo}

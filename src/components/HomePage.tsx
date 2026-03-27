@@ -4,9 +4,11 @@ type HomePageProps = {
   unitOneCompleted: boolean;
   unitTwoCompletedLessons: number;
   unitTwoTotalLessons: number;
+  unitTwoCompleted: boolean;
   unitTwoUnlocked: boolean;
   unitThreeCompletedLessons: number;
   unitThreeTotalLessons: number;
+  unitThreeCompleted: boolean;
   unitThreeUnlocked: boolean;
   onOpenUnitOne: () => void;
   onOpenUnitTwo: () => void;
@@ -19,9 +21,11 @@ function HomePage({
   unitOneCompleted,
   unitTwoCompletedLessons,
   unitTwoTotalLessons,
+  unitTwoCompleted,
   unitTwoUnlocked,
   unitThreeCompletedLessons,
   unitThreeTotalLessons,
+  unitThreeCompleted,
   unitThreeUnlocked,
   onOpenUnitOne,
   onOpenUnitTwo,
@@ -66,7 +70,9 @@ function HomePage({
               <strong>Unidad 2</strong>
               <span>
                 {unitTwoUnlocked
-                  ? `${unitTwoCompletedLessons}/${unitTwoTotalLessons} lecciones`
+                  ? unitTwoCompleted
+                    ? 'Completada'
+                    : `${unitTwoCompletedLessons}/${unitTwoTotalLessons} lecciones`
                   : 'Se desbloquea al completar la Unidad 1'}
               </span>
             </button>
@@ -79,7 +85,9 @@ function HomePage({
               <strong>Unidad 3</strong>
               <span>
                 {unitThreeUnlocked
-                  ? `${unitThreeCompletedLessons}/${unitThreeTotalLessons} lecciones`
+                  ? unitThreeCompleted
+                    ? 'Completada'
+                    : `${unitThreeCompletedLessons}/${unitThreeTotalLessons} lecciones`
                   : 'Se desbloquea al completar la Unidad 2'}
               </span>
             </button>
@@ -91,12 +99,20 @@ function HomePage({
             </button>
             {unitTwoUnlocked ? (
               <button className="button button--secondary" onClick={onOpenUnitTwo}>
-                {unitTwoCompletedLessons > 0 ? 'Continuar unidad 2' : 'Empezar unidad 2'}
+                {unitTwoCompleted
+                  ? 'Revisar unidad 2'
+                  : unitTwoCompletedLessons > 0
+                    ? 'Continuar unidad 2'
+                    : 'Empezar unidad 2'}
               </button>
             ) : null}
             {unitThreeUnlocked ? (
               <button className="button button--secondary" onClick={onOpenUnitThree}>
-                {unitThreeCompletedLessons > 0 ? 'Continuar unidad 3' : 'Empezar unidad 3'}
+                {unitThreeCompleted
+                  ? 'Revisar unidad 3'
+                  : unitThreeCompletedLessons > 0
+                    ? 'Continuar unidad 3'
+                    : 'Empezar unidad 3'}
               </button>
             ) : null}
           </div>
