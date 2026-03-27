@@ -31,6 +31,34 @@ function HomePage({
   onOpenUnitTwo,
   onOpenUnitThree,
 }: HomePageProps) {
+  const unitOneActionLabel = unitOneCompleted
+    ? 'Revisar unidad 1'
+    : unitOneCompletedLessons > 0
+      ? 'Continuar unidad 1'
+      : 'Empezar unidad 1';
+  const unitTwoActionLabel = unitTwoCompleted
+    ? 'Revisar unidad 2'
+    : unitTwoCompletedLessons > 0
+      ? 'Continuar unidad 2'
+      : 'Empezar unidad 2';
+  const unitThreeActionLabel = unitThreeCompleted
+    ? 'Revisar unidad 3'
+    : unitThreeCompletedLessons > 0
+      ? 'Continuar unidad 3'
+      : 'Empezar unidad 3';
+
+  const primaryActionKey = !unitOneCompleted
+    ? 'unit-1'
+    : unitTwoUnlocked && !unitTwoCompleted
+      ? 'unit-2'
+      : unitThreeUnlocked && !unitThreeCompleted
+        ? 'unit-3'
+        : unitThreeCompleted
+          ? 'unit-3'
+          : unitTwoCompleted
+            ? 'unit-2'
+            : 'unit-1';
+
   return (
     <div className="page-shell page-shell--home">
       <main className="home-stage">
@@ -94,25 +122,26 @@ function HomePage({
           </div>
 
           <div className="home-card__actions">
-            <button className="button button--primary" onClick={onOpenUnitOne}>
-              {unitOneCompleted ? 'Revisar unidad 1' : unitOneCompletedLessons > 0 ? 'Continuar unidad 1' : 'Empezar unidad 1'}
+            <button
+              className={`button ${primaryActionKey === 'unit-1' ? 'button--primary' : 'button--secondary'}`}
+              onClick={onOpenUnitOne}
+            >
+              {unitOneActionLabel}
             </button>
             {unitTwoUnlocked ? (
-              <button className="button button--secondary" onClick={onOpenUnitTwo}>
-                {unitTwoCompleted
-                  ? 'Revisar unidad 2'
-                  : unitTwoCompletedLessons > 0
-                    ? 'Continuar unidad 2'
-                    : 'Empezar unidad 2'}
+              <button
+                className={`button ${primaryActionKey === 'unit-2' ? 'button--primary' : 'button--secondary'}`}
+                onClick={onOpenUnitTwo}
+              >
+                {unitTwoActionLabel}
               </button>
             ) : null}
             {unitThreeUnlocked ? (
-              <button className="button button--secondary" onClick={onOpenUnitThree}>
-                {unitThreeCompleted
-                  ? 'Revisar unidad 3'
-                  : unitThreeCompletedLessons > 0
-                    ? 'Continuar unidad 3'
-                    : 'Empezar unidad 3'}
+              <button
+                className={`button ${primaryActionKey === 'unit-3' ? 'button--primary' : 'button--secondary'}`}
+                onClick={onOpenUnitThree}
+              >
+                {unitThreeActionLabel}
               </button>
             ) : null}
           </div>
