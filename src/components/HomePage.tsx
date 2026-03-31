@@ -1,150 +1,117 @@
-type HomePageProps = {
-  unitOneCompletedLessons: number;
-  unitOneTotalLessons: number;
-  unitOneCompleted: boolean;
-  unitTwoCompletedLessons: number;
-  unitTwoTotalLessons: number;
-  unitTwoCompleted: boolean;
-  unitTwoUnlocked: boolean;
-  unitThreeCompletedLessons: number;
-  unitThreeTotalLessons: number;
-  unitThreeCompleted: boolean;
-  unitThreeUnlocked: boolean;
-  onOpenUnitOne: () => void;
-  onOpenUnitTwo: () => void;
-  onOpenUnitThree: () => void;
+type CourseUnitCard = {
+  id: string;
+  label: string;
+  title: string;
+  focus: string;
+  completedLessons: number;
+  totalLessons: number;
+  completed: boolean;
+  unlocked: boolean;
+  lockedReason: string;
 };
 
-function HomePage({
-  unitOneCompletedLessons,
-  unitOneTotalLessons,
-  unitOneCompleted,
-  unitTwoCompletedLessons,
-  unitTwoTotalLessons,
-  unitTwoCompleted,
-  unitTwoUnlocked,
-  unitThreeCompletedLessons,
-  unitThreeTotalLessons,
-  unitThreeCompleted,
-  unitThreeUnlocked,
-  onOpenUnitOne,
-  onOpenUnitTwo,
-  onOpenUnitThree,
-}: HomePageProps) {
-  const unitOneActionLabel = unitOneCompleted
-    ? 'Revisar unidad 1'
-    : unitOneCompletedLessons > 0
-      ? 'Continuar unidad 1'
-      : 'Empezar unidad 1';
-  const unitTwoActionLabel = unitTwoCompleted
-    ? 'Revisar unidad 2'
-    : unitTwoCompletedLessons > 0
-      ? 'Continuar unidad 2'
-      : 'Empezar unidad 2';
-  const unitThreeActionLabel = unitThreeCompleted
-    ? 'Revisar unidad 3'
-    : unitThreeCompletedLessons > 0
-      ? 'Continuar unidad 3'
-      : 'Empezar unidad 3';
+type HomePageProps = {
+  courseTitle: string;
+  courseEyebrow: string;
+  heroTitle: string;
+  description: string;
+  tags: string[];
+  progressLabel: string;
+  units: CourseUnitCard[];
+  onBack: () => void;
+  onOpenUnit: (unitId: string) => void;
+};
 
-  const primaryActionKey = !unitOneCompleted
-    ? 'unit-1'
-    : unitTwoUnlocked && !unitTwoCompleted
-      ? 'unit-2'
-      : unitThreeUnlocked && !unitThreeCompleted
-        ? 'unit-3'
-        : unitThreeCompleted
-          ? 'unit-3'
-          : unitTwoCompleted
-            ? 'unit-2'
-            : 'unit-1';
+function getUnitActionLabel(unit: CourseUnitCard) {
+  if (unit.completed) {
+    return `Revisar ${unit.label.toLowerCase()}`;
+  }
+
+  if (unit.completedLessons > 0) {
+    return `Continuar ${unit.label.toLowerCase()}`;
+  }
+
+  return `Empezar ${unit.label.toLowerCase()}`;
+}
+
+function HomePage({
+  courseTitle,
+  courseEyebrow,
+  heroTitle,
+  description,
+  tags,
+  progressLabel,
+  units,
+  onBack,
+  onOpenUnit,
+}: HomePageProps) {
+  const primaryUnit =
+    units.find((unit) => unit.unlocked && !unit.completed) ??
+    units.find((unit) => unit.unlocked) ??
+    units[0];
 
   return (
     <div className="page-shell page-shell--home">
       <main className="home-stage">
         <article className="home-card">
           <div className="home-card__top">
-            <span className="tag">EduTypes</span>
-            <span className="home-card__progress">
-              {unitOneCompleted ? 'Unidad 1 completa' : `Unidad 1 - ${unitOneCompletedLessons}/${unitOneTotalLessons}`}
-            </span>
+            <button className="button button--ghost" onClick={onBack}>
+              Cursos
+            </button>
+            <span className="home-card__progress">{progressLabel}</span>
           </div>
 
           <div className="home-card__body">
-            <p className="eyebrow">Aprender rapido</p>
-            <h1>Lee poco. Escribe codigo. Avanza a la derecha.</h1>
-            <p className="hero__description">
-              Todo queda guardado para que entres, practiques unos minutos y sigas luego.
-            </p>
+            <p className="eyebrow">{courseEyebrow}</p>
+            <h1>{heroTitle}</h1>
+            <p className="hero__description">{description}</p>
+            <p className="home-card__course-name">{courseTitle}</p>
           </div>
 
           <div className="home-card__meta">
-            <div className="mini-pill">Sin pegar codigo</div>
-            <div className="mini-pill">Progreso guardado</div>
-            <div className="mini-pill">Bloques cortos</div>
+            {tags.map((tag) => (
+              <div key={tag} className="mini-pill">
+                {tag}
+              </div>
+            ))}
           </div>
 
           <div className="home-card__units">
-            <button className="unit-card" onClick={onOpenUnitOne}>
-              <strong>Unidad 1</strong>
-              <span>{unitOneCompleted ? 'Completada' : `${unitOneCompletedLessons}/${unitOneTotalLessons} lecciones`}</span>
-            </button>
-
-            <button
-              className={`unit-card ${!unitTwoUnlocked ? 'unit-card--locked' : ''}`}
-              disabled={!unitTwoUnlocked}
-              onClick={onOpenUnitTwo}
-            >
-              <strong>Unidad 2</strong>
-              <span>
-                {unitTwoUnlocked
-                  ? unitTwoCompleted
-                    ? 'Completada'
-                    : `${unitTwoCompletedLessons}/${unitTwoTotalLessons} lecciones`
-                  : 'Se desbloquea al completar la Unidad 1'}
-              </span>
-            </button>
-
-            <button
-              className={`unit-card ${!unitThreeUnlocked ? 'unit-card--locked' : ''}`}
-              disabled={!unitThreeUnlocked}
-              onClick={onOpenUnitThree}
-            >
-              <strong>Unidad 3</strong>
-              <span>
-                {unitThreeUnlocked
-                  ? unitThreeCompleted
-                    ? 'Completada'
-                    : `${unitThreeCompletedLessons}/${unitThreeTotalLessons} lecciones`
-                  : 'Se desbloquea al completar la Unidad 2'}
-              </span>
-            </button>
+            {units.map((unit) => (
+              <button
+                key={unit.id}
+                className={`unit-card ${!unit.unlocked ? 'unit-card--locked' : ''}`}
+                disabled={!unit.unlocked}
+                onClick={() => onOpenUnit(unit.id)}
+              >
+                <strong>
+                  {unit.label}: {unit.title}
+                </strong>
+                <span>
+                  {unit.unlocked
+                    ? unit.completed
+                      ? 'Completada'
+                      : `${unit.completedLessons}/${unit.totalLessons} lecciones`
+                    : unit.lockedReason}
+                </span>
+                <small>{unit.focus}</small>
+              </button>
+            ))}
           </div>
 
-          <div className="home-card__actions">
-            <button
-              className={`button ${primaryActionKey === 'unit-1' ? 'button--primary' : 'button--secondary'}`}
-              onClick={onOpenUnitOne}
-            >
-              {unitOneActionLabel}
-            </button>
-            {unitTwoUnlocked ? (
-              <button
-                className={`button ${primaryActionKey === 'unit-2' ? 'button--primary' : 'button--secondary'}`}
-                onClick={onOpenUnitTwo}
-              >
-                {unitTwoActionLabel}
-              </button>
-            ) : null}
-            {unitThreeUnlocked ? (
-              <button
-                className={`button ${primaryActionKey === 'unit-3' ? 'button--primary' : 'button--secondary'}`}
-                onClick={onOpenUnitThree}
-              >
-                {unitThreeActionLabel}
-              </button>
-            ) : null}
-          </div>
+          {primaryUnit ? (
+            <div className="home-card__actions">
+              {units.filter((unit) => unit.unlocked).map((unit) => (
+                <button
+                  key={unit.id}
+                  className={`button ${primaryUnit.id === unit.id ? 'button--primary' : 'button--secondary'}`}
+                  onClick={() => onOpenUnit(unit.id)}
+                >
+                  {getUnitActionLabel(unit)}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </article>
       </main>
     </div>

@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import CourseCatalogPage from './components/CourseCatalogPage';
 import HomePage from './components/HomePage';
-import UnitOnePage from './components/UnitOnePage';
-import { unitOneLessons } from './data/unit-one';
-import { unitThreeLessons } from './data/unit-three';
-import { unitTwoLessons } from './data/unit-two';
+import UnitPage from './components/UnitPage';
+import { courses, getCourseDefinition, getCourseUnit } from './data/course';
+import type { CourseDefinition, CourseUnitDefinition } from './data/course';
 import type { UnitLesson } from './data/unit-types';
 import {
   createInitialProgress,
@@ -15,39 +14,96 @@ import {
   type UnitProgress,
 } from './lib/unit-progress';
 
-type Route = 'home' | 'unit-01' | 'unit-02' | 'unit-03';
+type Route =
+  | { kind: 'catalog' }
+  | { kind: 'course'; courseId: string }
+  | { kind: 'unit'; courseId: string; unitSlug: string };
 
-const UNIT_ONE_STORAGE_KEY = 'edutypes.unit-01.progress';
-const UNIT_TWO_STORAGE_KEY = 'edutypes.unit-02.progress';
-const UNIT_THREE_STORAGE_KEY = 'edutypes.unit-03.progress';
+type ProgressByUnit = Record<string, UnitProgress>;
+
+type CourseUnitState = {
+  definition: CourseUnitDefinition;
+  progress: UnitProgress;
+  completedLessons: number;
+  totalLessons: number;
+  completed: boolean;
+  unlocked: boolean;
+  lockedReason: string;
+};
+
+const allUnits = courses.flatMap((course) => course.units);
 
 function getRouteFromHash(): Route {
-  if (window.location.hash === '#unidad-1') {
-    return 'unit-01';
+  const segments = window.location.hash.replace(/^#/, '').split('/').filter(Boolean);
+
+  if (segments[0] !== 'curso') {
+    return { kind: 'catalog' };
   }
 
-  if (window.location.hash === '#unidad-2') {
-    return 'unit-02';
+  const courseId = segments[1];
+
+  if (!courseId || !getCourseDefinition(courseId)) {
+    return { kind: 'catalog' };
   }
 
-  if (window.location.hash === '#unidad-3') {
-    return 'unit-03';
+  if (segments.length === 2) {
+    return { kind: 'course', courseId };
   }
 
-  return 'home';
+  const unitSlug = segments[2];
+
+  if (unitSlug && getCourseUnit(courseId, unitSlug)) {
+    return { kind: 'unit', courseId, unitSlug };
+  }
+
+  return { kind: 'catalog' };
+}
+
+function buildInitialProgressState() {
+  return Object.fromEntries(
+    allUnits.map((unit) => [unit.id, readUnitProgress(unit.storageKey, unit.lessons)]),
+  ) as ProgressByUnit;
+}
+
+function hasStartedUnit(progress: UnitProgress) {
+  return (
+    progress.completedLessonIds.length > 0 ||
+    Object.keys(progress.drafts).length > 0 ||
+    Object.keys(progress.stageIndexes).length > 0 ||
+    Object.keys(progress.validatedExercises).length > 0
+  );
+}
+
+function getCourseUnitStates(course: CourseDefinition, progressByUnit: ProgressByUnit): CourseUnitState[] {
+  let previousCompleted = true;
+
+  return course.units.map((unit, index) => {
+    const progress =
+      progressByUnit[unit.id] ?? createInitialProgress(unit.lessons[0].id);
+    const completedLessons = getCompletedLessonsCount(unit.lessons, progress);
+    const totalLessons = unit.lessons.length;
+    const completed = completedLessons === totalLessons;
+    const unlocked = index === 0 ? true : previousCompleted;
+    const previousLabel = index > 0 ? course.units[index - 1].label : course.units[0].label;
+    const lockedReason = `Se desbloquea al completar ${previousLabel}`;
+
+    previousCompleted = completed;
+
+    return {
+      definition: unit,
+      progress,
+      completedLessons,
+      totalLessons,
+      completed,
+      unlocked,
+      lockedReason,
+    };
+  });
 }
 
 function App() {
   const [route, setRoute] = useState<Route>(getRouteFromHash);
-  const [unitOneProgress, setUnitOneProgress] = useState<UnitProgress>(() =>
-    readUnitProgress(UNIT_ONE_STORAGE_KEY, unitOneLessons),
-  );
-  const [unitTwoProgress, setUnitTwoProgress] = useState<UnitProgress>(() =>
-    readUnitProgress(UNIT_TWO_STORAGE_KEY, unitTwoLessons),
-  );
-  const [unitThreeProgress, setUnitThreeProgress] = useState<UnitProgress>(() =>
-    readUnitProgress(UNIT_THREE_STORAGE_KEY, unitThreeLessons),
-  );
+  const [progressByUnit, setProgressByUnit] = useState<ProgressByUnit>(buildInitialProgressState);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -66,40 +122,61 @@ function App() {
   }, [route]);
 
   useEffect(() => {
-    saveUnitProgress(UNIT_ONE_STORAGE_KEY, unitOneProgress);
-  }, [unitOneProgress]);
+    allUnits.forEach((unit) => {
+      const progress = progressByUnit[unit.id];
+      if (progress) {
+        saveUnitProgress(unit.storageKey, progress);
+      }
+    });
+  }, [progressByUnit]);
 
-  useEffect(() => {
-    saveUnitProgress(UNIT_TWO_STORAGE_KEY, unitTwoProgress);
-  }, [unitTwoProgress]);
+  const currentCourse =
+    route.kind === 'catalog' ? null : getCourseDefinition(route.courseId);
+  const currentUnit =
+    route.kind === 'unit' ? getCourseUnit(route.courseId, route.unitSlug) : null;
+  const currentCourseUnitStates = useMemo(
+    () => (currentCourse ? getCourseUnitStates(currentCourse, progressByUnit) : []),
+    [currentCourse, progressByUnit],
+  );
 
-  useEffect(() => {
-    saveUnitProgress(UNIT_THREE_STORAGE_KEY, unitThreeProgress);
-  }, [unitThreeProgress]);
-
-  const goToHome = () => {
+  const goToCatalog = () => {
     window.location.hash = '';
   };
 
-  const goToUnitOne = () => {
-    window.location.hash = 'unidad-1';
+  const goToCourse = (courseId: string) => {
+    window.location.hash = `curso/${courseId}`;
   };
 
-  const goToUnitTwo = () => {
-    window.location.hash = 'unidad-2';
+  const goToUnit = (courseId: string, unitSlug: string) => {
+    window.location.hash = `curso/${courseId}/${unitSlug}`;
   };
 
-  const goToUnitThree = () => {
-    window.location.hash = 'unidad-3';
+  const updateUnitProgress = (
+    unitId: string,
+    updater: (current: UnitProgress) => UnitProgress,
+  ) => {
+    setProgressByUnit((current) => {
+      const unitDefinition = allUnits.find((unit) => unit.id === unitId);
+      if (!unitDefinition) {
+        return current;
+      }
+
+      const unitProgress = current[unitId] ?? createInitialProgress(unitDefinition.lessons[0].id);
+
+      return {
+        ...current,
+        [unitId]: updater(unitProgress),
+      };
+    });
   };
 
   const updateExerciseDraft = (
-    setProgress: Dispatch<SetStateAction<UnitProgress>>,
+    unitId: string,
     lessonId: string,
     exerciseId: string,
     value: string,
   ) => {
-    setProgress((current) => ({
+    updateUnitProgress(unitId, (current) => ({
       ...current,
       activeLessonId: lessonId,
       drafts: {
@@ -120,27 +197,23 @@ function App() {
   };
 
   const selectLesson = (
+    unitId: string,
     lessons: UnitLesson[],
     progress: UnitProgress,
-    setProgress: Dispatch<SetStateAction<UnitProgress>>,
     lessonId: string,
   ) => {
     if (!isLessonUnlocked(lessons, progress, lessonId)) {
       return;
     }
 
-    setProgress((current) => ({
+    updateUnitProgress(unitId, (current) => ({
       ...current,
       activeLessonId: lessonId,
     }));
   };
 
-  const setLessonStage = (
-    setProgress: Dispatch<SetStateAction<UnitProgress>>,
-    lessonId: string,
-    stageIndex: number,
-  ) => {
-    setProgress((current) => ({
+  const setLessonStage = (unitId: string, lessonId: string, stageIndex: number) => {
+    updateUnitProgress(unitId, (current) => ({
       ...current,
       activeLessonId: lessonId,
       stageIndexes: {
@@ -151,12 +224,12 @@ function App() {
   };
 
   const setExerciseValidated = (
-    setProgress: Dispatch<SetStateAction<UnitProgress>>,
+    unitId: string,
     lessonId: string,
     exerciseId: string,
     validated: boolean,
   ) => {
-    setProgress((current) => ({
+    updateUnitProgress(unitId, (current) => ({
       ...current,
       validatedExercises: {
         ...current.validatedExercises,
@@ -169,14 +242,14 @@ function App() {
   };
 
   const completeLesson = (
+    unitId: string,
     lessons: UnitLesson[],
-    setProgress: Dispatch<SetStateAction<UnitProgress>>,
     lessonId: string,
   ) => {
     const lessonIndex = lessons.findIndex((lesson) => lesson.id === lessonId);
     const nextLesson = lessons[lessonIndex + 1];
 
-    setProgress((current) => {
+    updateUnitProgress(unitId, (current) => {
       const completedLessonIds = current.completedLessonIds.includes(lessonId)
         ? current.completedLessonIds
         : [...current.completedLessonIds, lessonId];
@@ -194,136 +267,111 @@ function App() {
     });
   };
 
-  const resetUnitOneProgress = () => {
-    setUnitOneProgress(createInitialProgress(unitOneLessons[0].id));
+  const resetUnitProgress = (unitId: string, firstLessonId: string) => {
+    setProgressByUnit((current) => ({
+      ...current,
+      [unitId]: createInitialProgress(firstLessonId),
+    }));
   };
 
-  const resetUnitTwoProgress = () => {
-    setUnitTwoProgress(createInitialProgress(unitTwoLessons[0].id));
-  };
+  const catalogItems = courses.map((course) => {
+    const unitStates = getCourseUnitStates(course, progressByUnit);
+    const completedUnits = unitStates.filter((unit) => unit.completed).length;
+    const started = unitStates.some((unit) => hasStartedUnit(unit.progress));
 
-  const resetUnitThreeProgress = () => {
-    setUnitThreeProgress(createInitialProgress(unitThreeLessons[0].id));
-  };
+    return {
+      id: course.id,
+      title: course.title,
+      eyebrow: course.eyebrow,
+      description: course.description,
+      progressLabel: `${completedUnits}/${course.units.length} unidades`,
+      actionLabel:
+        completedUnits === course.units.length
+          ? 'Revisar curso'
+          : started
+            ? 'Continuar curso'
+            : 'Abrir curso',
+      totalUnits: course.units.length,
+      completedUnits,
+    };
+  });
 
-  const unitOneCompletedLessons = getCompletedLessonsCount(unitOneLessons, unitOneProgress);
-  const unitTwoCompletedLessons = getCompletedLessonsCount(unitTwoLessons, unitTwoProgress);
-  const unitOneCompleted = unitOneCompletedLessons === unitOneLessons.length;
-  const unitTwoCompleted = unitTwoCompletedLessons === unitTwoLessons.length;
-  const unitTwoUnlocked = unitOneCompleted;
-  const unitThreeCompletedLessons = getCompletedLessonsCount(unitThreeLessons, unitThreeProgress);
-  const unitThreeCompleted = unitThreeCompletedLessons === unitThreeLessons.length;
-  const unitThreeUnlocked = unitTwoCompleted;
-
-  if (route === 'unit-02' && !unitTwoUnlocked) {
+  if (route.kind === 'unit' && (!currentCourse || !currentUnit)) {
     window.location.hash = '';
     return null;
   }
 
-  if (route === 'unit-03' && !unitThreeUnlocked) {
-    window.location.hash = '';
-    return null;
-  }
+  if (route.kind === 'unit' && currentCourse && currentUnit) {
+    const unitState = currentCourseUnitStates.find(
+      (entry) => entry.definition.id === currentUnit.id,
+    );
 
-  if (route === 'unit-01') {
+    if (!unitState || !unitState.unlocked) {
+      goToCourse(currentCourse.id);
+      return null;
+    }
+
     return (
-      <UnitOnePage
-        unitLabel="Unidad 1"
-        lessons={unitOneLessons}
-        progress={unitOneProgress}
-        onBack={goToHome}
+      <UnitPage
+        unitLabel={currentUnit.label}
+        validationLabel={currentCourse.validationLabel}
+        lessons={currentUnit.lessons}
+        progress={unitState.progress}
+        onBack={() => goToCourse(currentCourse.id)}
         onChangeDraft={(lessonId, exerciseId, value) =>
-          updateExerciseDraft(setUnitOneProgress, lessonId, exerciseId, value)
+          updateExerciseDraft(currentUnit.id, lessonId, exerciseId, value)
         }
         onCompleteLesson={(lessonId) =>
-          completeLesson(unitOneLessons, setUnitOneProgress, lessonId)
+          completeLesson(currentUnit.id, currentUnit.lessons, lessonId)
         }
-        onResetProgress={resetUnitOneProgress}
+        onResetProgress={() => resetUnitProgress(currentUnit.id, currentUnit.lessons[0].id)}
         onSelectLesson={(lessonId) =>
-          selectLesson(unitOneLessons, unitOneProgress, setUnitOneProgress, lessonId)
+          selectLesson(currentUnit.id, currentUnit.lessons, unitState.progress, lessonId)
         }
         onSetLessonStage={(lessonId, stageIndex) =>
-          setLessonStage(setUnitOneProgress, lessonId, stageIndex)
+          setLessonStage(currentUnit.id, lessonId, stageIndex)
         }
         onSetExerciseValidated={(lessonId, exerciseId, validated) =>
-          setExerciseValidated(setUnitOneProgress, lessonId, exerciseId, validated)
+          setExerciseValidated(currentUnit.id, lessonId, exerciseId, validated)
         }
       />
     );
   }
 
-  if (route === 'unit-02') {
+  if (route.kind === 'course' && currentCourse) {
+    const completedUnits = currentCourseUnitStates.filter((unit) => unit.completed).length;
+
     return (
-      <UnitOnePage
-        unitLabel="Unidad 2"
-        lessons={unitTwoLessons}
-        progress={unitTwoProgress}
-        onBack={goToHome}
-        onChangeDraft={(lessonId, exerciseId, value) =>
-          updateExerciseDraft(setUnitTwoProgress, lessonId, exerciseId, value)
-        }
-        onCompleteLesson={(lessonId) =>
-          completeLesson(unitTwoLessons, setUnitTwoProgress, lessonId)
-        }
-        onResetProgress={resetUnitTwoProgress}
-        onSelectLesson={(lessonId) =>
-          selectLesson(unitTwoLessons, unitTwoProgress, setUnitTwoProgress, lessonId)
-        }
-        onSetLessonStage={(lessonId, stageIndex) =>
-          setLessonStage(setUnitTwoProgress, lessonId, stageIndex)
-        }
-        onSetExerciseValidated={(lessonId, exerciseId, validated) =>
-          setExerciseValidated(setUnitTwoProgress, lessonId, exerciseId, validated)
-        }
+      <HomePage
+        courseTitle={currentCourse.title}
+        courseEyebrow={currentCourse.eyebrow}
+        heroTitle={currentCourse.heroTitle}
+        description={currentCourse.description}
+        tags={currentCourse.tags}
+        progressLabel={`${completedUnits}/${currentCourse.units.length} unidades completas`}
+        units={currentCourseUnitStates.map((unit) => ({
+          id: unit.definition.id,
+          label: unit.definition.label,
+          title: unit.definition.title,
+          focus: unit.definition.focus,
+          completedLessons: unit.completedLessons,
+          totalLessons: unit.totalLessons,
+          completed: unit.completed,
+          unlocked: unit.unlocked,
+          lockedReason: unit.lockedReason,
+        }))}
+        onBack={goToCatalog}
+        onOpenUnit={(unitId) => {
+          const selectedUnit = currentCourse.units.find((unit) => unit.id === unitId);
+          if (selectedUnit) {
+            goToUnit(currentCourse.id, selectedUnit.slug);
+          }
+        }}
       />
     );
   }
 
-  if (route === 'unit-03') {
-    return (
-      <UnitOnePage
-        unitLabel="Unidad 3"
-        lessons={unitThreeLessons}
-        progress={unitThreeProgress}
-        onBack={goToHome}
-        onChangeDraft={(lessonId, exerciseId, value) =>
-          updateExerciseDraft(setUnitThreeProgress, lessonId, exerciseId, value)
-        }
-        onCompleteLesson={(lessonId) =>
-          completeLesson(unitThreeLessons, setUnitThreeProgress, lessonId)
-        }
-        onResetProgress={resetUnitThreeProgress}
-        onSelectLesson={(lessonId) =>
-          selectLesson(unitThreeLessons, unitThreeProgress, setUnitThreeProgress, lessonId)
-        }
-        onSetLessonStage={(lessonId, stageIndex) =>
-          setLessonStage(setUnitThreeProgress, lessonId, stageIndex)
-        }
-        onSetExerciseValidated={(lessonId, exerciseId, validated) =>
-          setExerciseValidated(setUnitThreeProgress, lessonId, exerciseId, validated)
-        }
-      />
-    );
-  }
-
-  return (
-    <HomePage
-      unitOneCompletedLessons={unitOneCompletedLessons}
-      unitOneTotalLessons={unitOneLessons.length}
-      unitOneCompleted={unitOneCompleted}
-      unitTwoCompletedLessons={unitTwoCompletedLessons}
-      unitTwoTotalLessons={unitTwoLessons.length}
-      unitTwoCompleted={unitTwoCompleted}
-      unitTwoUnlocked={unitTwoUnlocked}
-      unitThreeCompletedLessons={unitThreeCompletedLessons}
-      unitThreeTotalLessons={unitThreeLessons.length}
-      unitThreeCompleted={unitThreeCompleted}
-      unitThreeUnlocked={unitThreeUnlocked}
-      onOpenUnitOne={goToUnitOne}
-      onOpenUnitTwo={goToUnitTwo}
-      onOpenUnitThree={goToUnitThree}
-    />
-  );
+  return <CourseCatalogPage courses={catalogItems} onOpenCourse={goToCourse} />;
 }
 
 export default App;

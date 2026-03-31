@@ -13,8 +13,9 @@ import {
   type UnitProgress,
 } from '../lib/unit-progress';
 
-type UnitOnePageProps = {
+type UnitPageProps = {
   unitLabel: string;
+  validationLabel: string;
   lessons: UnitLesson[];
   progress: UnitProgress;
   onBack: () => void;
@@ -99,11 +100,12 @@ function exerciseExpectsConsoleOutput(exercise: LessonExercise) {
 }
 
 function buildExerciseSuccessMessage(
+  validationLabel: string,
   result: Awaited<ReturnType<typeof validateExerciseWithCompiler>>,
 ) {
   const parts = ['Excelente. Este ejercicio ya quedo correcto.'];
 
-  parts.push('Compilacion TypeScript: correcta.');
+  parts.push(`${validationLabel}: correcta.`);
   parts.push('Objetivo del ejercicio: cumplido.');
 
   if (result.successes.length > 0) {
@@ -183,8 +185,9 @@ function buildLessonStages(lesson: UnitLesson): LessonStage[] {
   return [introStage, ...learningStages];
 }
 
-function UnitOnePage({
+function UnitPage({
   unitLabel,
+  validationLabel,
   lessons,
   progress,
   onBack,
@@ -194,7 +197,7 @@ function UnitOnePage({
   onSelectLesson,
   onSetLessonStage,
   onSetExerciseValidated,
-}: UnitOnePageProps) {
+}: UnitPageProps) {
   const [feedback, setFeedback] = useState<{
     tone: 'success' | 'error';
     text: string;
@@ -303,7 +306,7 @@ function UnitOnePage({
 
   const handleResetProgress = () => {
     const shouldReset = window.confirm(
-      '¿Estas seguro de reiniciar el progreso? Se borraran tus ejercicios, validaciones y avance guardado en esta unidad.',
+      'Estas seguro de reiniciar el progreso? Se borraran tus ejercicios, validaciones y avance guardado en esta unidad.',
     );
 
     if (!shouldReset) {
@@ -336,7 +339,7 @@ function UnitOnePage({
         setConsoleError(null);
         setFeedback({
           tone: 'error',
-          text: 'No pude revisar tu ejercicio con el compilador en este intento.',
+          text: 'No pude revisar tu ejercicio con el analizador en este intento.',
         });
         return;
       }
@@ -352,8 +355,8 @@ function UnitOnePage({
 
         parts.push(
           result.compilerOk
-            ? 'Compilacion TypeScript: correcta.'
-            : `Compilacion TypeScript: incorrecta. ${result.compilerErrors.join(' ')}`,
+            ? `${validationLabel}: correcta.`
+            : `${validationLabel}: incorrecta. ${result.compilerErrors.join(' ')}`,
         );
 
         if (result.ruleErrors.length > 0) {
@@ -381,7 +384,7 @@ function UnitOnePage({
       onSetExerciseValidated(activeLesson.id, activeExercise.id, true);
       setFeedback({
         tone: 'success',
-        text: buildExerciseSuccessMessage(result),
+        text: buildExerciseSuccessMessage(validationLabel, result),
       });
       return;
     }
@@ -614,10 +617,10 @@ function UnitOnePage({
                 ? isReviewing
                   ? 'Revisando...'
                   : activeExerciseValidated
-                  ? isLastStage
-                    ? 'Completar'
-                    : 'Derecha'
-                  : 'Revisar'
+                    ? isLastStage
+                      ? 'Completar'
+                      : 'Derecha'
+                    : 'Revisar'
                 : isLastStage
                   ? 'Completar'
                   : 'Derecha'}
@@ -638,4 +641,4 @@ function UnitOnePage({
   );
 }
 
-export default UnitOnePage;
+export default UnitPage;
