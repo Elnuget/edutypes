@@ -20,7 +20,17 @@ type RuleValidationResult = {
 
 type TsModule = typeof import('typescript');
 
-const EXERCISE_FILE = 'exercise.ts';
+function sourceLooksLikeTsx(sourceText: string) {
+  return /<\/?[A-Z][\w.-]*[\s/>]/.test(sourceText) || /<\/?[a-z][\w-]*[\s/>]/.test(sourceText);
+}
+
+function getExerciseFileName(sourceText: string) {
+  return sourceLooksLikeTsx(sourceText) ? 'exercise.tsx' : 'exercise.ts';
+}
+
+function getScriptKind(ts: TsModule, sourceText: string) {
+  return sourceLooksLikeTsx(sourceText) ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+}
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -499,13 +509,17 @@ function formatRuntimeValue(value: unknown) {
 
 function executeExerciseCode(ts: TsModule, sourceText: string) {
   const runtimeOutput: string[] = [];
+  const exerciseFile = getExerciseFileName(sourceText);
 
   const transpiled = ts.transpileModule(sourceText, {
-    fileName: EXERCISE_FILE,
+    fileName: exerciseFile,
     compilerOptions: {
       target: ts.ScriptTarget.ES2022,
       module: ts.ModuleKind.None,
       strict: true,
+      jsx: ts.JsxEmit.React,
+      jsxFactory: 'React.createElement',
+      jsxFragmentFactory: 'React.Fragment',
     },
   });
 
@@ -514,10 +528,72 @@ function executeExerciseCode(ts: TsModule, sourceText: string) {
       runtimeOutput.push(args.map((arg) => formatRuntimeValue(arg)).join(' '));
     },
   };
+  const fakeReact = {
+    createElement: (
+      type: unknown,
+      props: Record<string, unknown> | null,
+      ...children: unknown[]
+    ) => ({
+      type,
+      props: props ?? {},
+      children,
+    }),
+    Fragment: Symbol('Fragment'),
+    useState: <T,>(initialValue: T) => [initialValue, (_nextValue: T) => undefined] as const,
+    useEffect: () => undefined,
+  };
+  const fakeRequire = (moduleName: string) => {
+    if (moduleName === 'path' || moduleName === 'node:path') {
+      return {
+        join: (...parts: string[]) => parts.join('/'),
+        basename: (value: string) => value.split(/[\\/]/).pop() ?? value,
+      };
+    }
+
+    if (moduleName === 'fs' || moduleName === 'node:fs') {
+      return {
+        readFileSync: (filePath: string) =>
+          filePath.includes('json')
+            ? '{"title":"Node","status":"ok"}'
+            : 'contenido de ejemplo',
+        writeFileSync: () => undefined,
+      };
+    }
+
+    if (moduleName === 'http' || moduleName === 'node:http') {
+      return {
+        createServer: (
+          _handler: (request: { url: string }, response: { end: (value: string) => void }) => void,
+        ) => ({
+          listen: (_port: number, callback?: () => void) => {
+            callback?.();
+          },
+          close: () => undefined,
+        }),
+      };
+    }
+
+    return {};
+  };
+  const fakeProcess = {
+    argv: ['node', exerciseFile, 'react', 'node'],
+    env: {},
+    cwd: () => '/workspace',
+    exit: () => undefined,
+  };
+  const fakeModule = { exports: {} as Record<string, unknown> };
 
   try {
-    const runner = new Function('console', transpiled.outputText);
-    runner(fakeConsole);
+    const runner = new Function(
+      'console',
+      'React',
+      'require',
+      'module',
+      'exports',
+      'process',
+      transpiled.outputText,
+    );
+    runner(fakeConsole, fakeReact, fakeRequire, fakeModule, fakeModule.exports, fakeProcess);
 
     return {
       output: runtimeOutput,
@@ -533,21 +609,25 @@ function executeExerciseCode(ts: TsModule, sourceText: string) {
 }
 
 function getCompilerErrors(ts: TsModule, sourceText: string) {
+  const exerciseFile = getExerciseFileName(sourceText);
   const sourceFile = ts.createSourceFile(
-    EXERCISE_FILE,
+    exerciseFile,
     sourceText,
     ts.ScriptTarget.ES2022,
     true,
-    ts.ScriptKind.TS,
+    getScriptKind(ts, sourceText),
   );
 
   const transpileResult = ts.transpileModule(sourceText, {
-    fileName: EXERCISE_FILE,
+    fileName: exerciseFile,
     reportDiagnostics: true,
     compilerOptions: {
       target: ts.ScriptTarget.ES2022,
       module: ts.ModuleKind.ESNext,
       strict: true,
+      jsx: ts.JsxEmit.React,
+      jsxFactory: 'React.createElement',
+      jsxFragmentFactory: 'React.Fragment',
     },
   });
 

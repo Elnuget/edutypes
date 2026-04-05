@@ -3,6 +3,12 @@ import { javascriptUnitFourLessons } from './javascript-unit-four';
 import { javascriptUnitOneLessons } from './javascript-unit-one';
 import { javascriptUnitThreeLessons } from './javascript-unit-three';
 import { javascriptUnitTwoLessons } from './javascript-unit-two';
+import { nodeUnitOneLessons } from './node-unit-one';
+import { nodeUnitThreeLessons } from './node-unit-three';
+import { nodeUnitTwoLessons } from './node-unit-two';
+import { reactUnitOneLessons } from './react-unit-one';
+import { reactUnitThreeLessons } from './react-unit-three';
+import { reactUnitTwoLessons } from './react-unit-two';
 import { unitOneLessons } from './unit-one';
 import { unitThreeLessons } from './unit-three';
 import { unitTwoLessons } from './unit-two';
@@ -175,6 +181,134 @@ export const courses: CourseDefinition[] = [
         ],
         lessons: javascriptUnitFourLessons,
         storageKey: 'edutypes.javascript.unit-04.progress',
+      },
+    ],
+  },
+  {
+    id: 'react',
+    title: 'React',
+    eyebrow: 'Curso nuevo',
+    heroTitle: 'Aprende React creando componentes pequenos, claros y reutilizables.',
+    description:
+      'Curso guiado para empezar con JSX, componentes, props, eventos, estado y listas sin salir del flujo corto de EduTypes.',
+    courseSummary: 'Curso de React con modulos cortos, ejercicios secuenciales y progreso guardado por unidad.',
+    tags: ['JSX paso a paso', 'Estado guiado', 'Progreso guardado'],
+    validationLabel: 'Sintaxis de React',
+    units: [
+      {
+        id: 'react-unit-01',
+        slug: 'unidad-1',
+        number: '01',
+        label: 'Unidad 1',
+        title: 'JSX y composicion base',
+        focus: 'Aprender la forma minima de una pantalla React sin ruido.',
+        outcome: 'Podras escribir JSX, crear componentes y componer piezas pequenas.',
+        contents: [
+          'Etiquetas JSX y cierre correcto',
+          'function como componente',
+          'Fragmentos y contenedores',
+          'Composicion de pantalla corta',
+        ],
+        lessons: reactUnitOneLessons,
+        storageKey: 'edutypes.react.unit-01.progress',
+      },
+      {
+        id: 'react-unit-02',
+        slug: 'unidad-2',
+        number: '02',
+        label: 'Unidad 2',
+        title: 'Props y eventos',
+        focus: 'Mover datos y acciones entre componentes con la sintaxis correcta.',
+        outcome: 'Sabras pasar props, leerlas con claridad y conectar eventos simples.',
+        contents: [
+          'props y lectura con punto',
+          'Llaves dentro de JSX',
+          'Destructuring de props',
+          'onClick con referencia de funcion',
+        ],
+        lessons: reactUnitTwoLessons,
+        storageKey: 'edutypes.react.unit-02.progress',
+      },
+      {
+        id: 'react-unit-03',
+        slug: 'unidad-3',
+        number: '03',
+        label: 'Unidad 3',
+        title: 'Estado y listas',
+        focus: 'Hacer interfaces que cambian y repiten datos con una base segura.',
+        outcome: 'Podras usar useState, actualizar valores y renderizar listas con key.',
+        contents: [
+          'React.useState paso a paso',
+          'Funciones que actualizan estado',
+          'map para listas',
+          'key y estructuras repetidas',
+        ],
+        lessons: reactUnitThreeLessons,
+        storageKey: 'edutypes.react.unit-03.progress',
+      },
+    ],
+  },
+  {
+    id: 'nodejs',
+    title: 'Node.js',
+    eyebrow: 'Curso nuevo',
+    heroTitle: 'Aprende Node.js creando scripts, modulos y un servidor pequeno.',
+    description:
+      'Curso base para entrar a Node.js con require, process, fs, module.exports y HTTP usando pasos cortos y mucha repeticion.',
+    courseSummary: 'Curso de Node.js con modulos cortos, validacion de sintaxis y progreso secuencial.',
+    tags: ['Scripts cortos', 'Modulos Node', 'Servidor basico'],
+    validationLabel: 'Sintaxis de Node.js',
+    units: [
+      {
+        id: 'nodejs-unit-01',
+        slug: 'unidad-1',
+        number: '01',
+        label: 'Unidad 1',
+        title: 'Scripts y entrada del proceso',
+        focus: 'Entender como arranca un script Node y de donde salen sus datos.',
+        outcome: 'Podras usar require, path y process.argv para scripts simples.',
+        contents: [
+          'require para cargar modulos',
+          'path.join para rutas cortas',
+          'process.argv para argumentos',
+          'Consola visible',
+        ],
+        lessons: nodeUnitOneLessons,
+        storageKey: 'edutypes.nodejs.unit-01.progress',
+      },
+      {
+        id: 'nodejs-unit-02',
+        slug: 'unidad-2',
+        number: '02',
+        label: 'Unidad 2',
+        title: 'Modulos y archivos',
+        focus: 'Compartir funciones y leer datos locales con forma clara.',
+        outcome: 'Sabras exportar funciones, leer archivos y convertir JSON a objetos.',
+        contents: [
+          'module.exports',
+          'Funciones reutilizables',
+          'fs.readFileSync',
+          'JSON.parse y propiedades',
+        ],
+        lessons: nodeUnitTwoLessons,
+        storageKey: 'edutypes.nodejs.unit-02.progress',
+      },
+      {
+        id: 'nodejs-unit-03',
+        slug: 'unidad-3',
+        number: '03',
+        label: 'Unidad 3',
+        title: 'Servidor HTTP y rutas',
+        focus: 'Cerrar el curso levantando un servidor y respondiendo segun la ruta.',
+        outcome: 'Podras crear un servidor basico y manejar rutas con request.url.',
+        contents: [
+          'http.createServer',
+          'response.end',
+          'listen y puertos',
+          'if con request.url',
+        ],
+        lessons: nodeUnitThreeLessons,
+        storageKey: 'edutypes.nodejs.unit-03.progress',
       },
     ],
   },
