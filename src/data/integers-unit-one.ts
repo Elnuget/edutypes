@@ -5,7 +5,7 @@ export const integersUnitOneLessons: UnitLesson[] = [
     id: 'ne-u1-l1',
     step: '1',
     title: 'Suma de enteros con el mismo signo',
-    summary: 'Empiezas con sumas de enteros cuando todos los números van hacia el mismo lado.',
+    summary: 'Empiezas con sumas de enteros cuando todos los numeros van hacia el mismo lado.',
     goal: 'Entender [[+]], [[-]], suma de valores absolutos y conservar el signo cuando todos los sumandos tienen el mismo signo.',
     content: [
       {
@@ -99,7 +99,7 @@ export const integersUnitOneLessons: UnitLesson[] = [
         title: 'Ejercicio 6: suma negativa grande',
         instructions: [
           'Escribe solo el resultado final de `-1533 - 2980 - 537`.',
-          'Todos los números tienen signo negativo, asi que el resultado tambien debe ser negativo.',
+          'Todos los numeros tienen signo negativo, asi que el resultado tambien debe ser negativo.',
         ],
         placeholder: '',
         minLength: 4,

@@ -11,7 +11,7 @@ export const integersUnitTwoLessons: UnitLesson[] = [
       {
         title: 'Tarjeta 1: la resta compara dos cantidades',
         body: [
-          'En una resta, importa quien tiene mayor tamaño. Si `9 - 7`, gana el `9` y queda `2` positivo.',
+          'En una resta, importa quien tiene mayor tamano. Si `9 - 7`, gana el `9` y queda `2` positivo.',
           'Si `3 - 4`, gana el `4`. Como el mayor valor absoluto esta del lado negativo, el resultado queda `-1`.',
         ],
         code: '9 - 7 = 2\n3 - 4 = -1',
