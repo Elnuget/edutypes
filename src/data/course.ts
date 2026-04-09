@@ -3,6 +3,11 @@ import { javascriptUnitFourLessons } from './javascript-unit-four';
 import { javascriptUnitOneLessons } from './javascript-unit-one';
 import { javascriptUnitThreeLessons } from './javascript-unit-three';
 import { javascriptUnitTwoLessons } from './javascript-unit-two';
+import { integersUnitFiveLessons } from './integers-unit-five';
+import { integersUnitFourLessons } from './integers-unit-four';
+import { integersUnitOneLessons } from './integers-unit-one';
+import { integersUnitThreeLessons } from './integers-unit-three';
+import { integersUnitTwoLessons } from './integers-unit-two';
 import { nodeUnitOneLessons } from './node-unit-one';
 import { nodeUnitThreeLessons } from './node-unit-three';
 import { nodeUnitTwoLessons } from './node-unit-two';
@@ -309,6 +314,105 @@ export const courses: CourseDefinition[] = [
         ],
         lessons: nodeUnitThreeLessons,
         storageKey: 'edutypes.nodejs.unit-03.progress',
+      },
+    ],
+  },
+  {
+    id: 'numeros-enteros',
+    title: 'Numeros Enteros',
+    eyebrow: 'Curso de matematica',
+    heroTitle: 'Aprende enteros con pasos cortos, signos claros y cuentas que si exigen pensar.',
+    description:
+      'Curso basado en el bloque de Numeros Enteros del libro `matesimp2.pdf`, enfocado en suma, resta, signos de agrupacion, multiplicacion y division.',
+    courseSummary:
+      'Curso de enteros para ninas y ninos con buen ritmo de razonamiento, explicaciones claras y ejercicios cortos de respuesta entera.',
+    tags: ['Un paso a la vez', 'Resultados enteros', 'Basado en el libro'],
+    validationLabel: 'Revision matematica',
+    units: [
+      {
+        id: 'integers-unit-01',
+        slug: 'unidad-1',
+        number: '01',
+        label: 'Unidad 1',
+        title: 'Suma de enteros',
+        focus: 'Entender positivos, negativos y suma con el mismo signo.',
+        outcome: 'Podras sumar enteros con el mismo signo y mantener el signo correcto en el resultado.',
+        contents: [
+          'Positivos y negativos',
+          'Suma con el mismo signo',
+          'Valores absolutos',
+          'Cuentas grandes con la misma regla',
+        ],
+        lessons: integersUnitOneLessons,
+        storageKey: 'edutypes.integers.unit-01.progress',
+      },
+      {
+        id: 'integers-unit-02',
+        slug: 'unidad-2',
+        number: '02',
+        label: 'Unidad 2',
+        title: 'Resta y mezcla de signos',
+        focus: 'Comparar cantidades y decidir el signo final sin perderte.',
+        outcome: 'Podras restar enteros y resolver mezclas cortas de positivos y negativos.',
+        contents: [
+          'Resta basica',
+          'Valor absoluto',
+          'Reunion de signos iguales',
+          'Cierre de cuentas mixtas',
+        ],
+        lessons: integersUnitTwoLessons,
+        storageKey: 'edutypes.integers.unit-02.progress',
+      },
+      {
+        id: 'integers-unit-03',
+        slug: 'unidad-3',
+        number: '03',
+        label: 'Unidad 3',
+        title: 'Signos de agrupacion',
+        focus: 'Quitar parentesis, corchetes y llaves sin cambiar mal los signos.',
+        outcome: 'Podras simplificar signos de agrupacion y resolver operaciones enteras paso a paso.',
+        contents: [
+          'Parentesis con signo positivo',
+          'Parentesis con signo negativo',
+          'Simplificar antes de operar',
+          'Cuentas agrupadas mas largas',
+        ],
+        lessons: integersUnitThreeLessons,
+        storageKey: 'edutypes.integers.unit-03.progress',
+      },
+      {
+        id: 'integers-unit-04',
+        slug: 'unidad-4',
+        number: '04',
+        label: 'Unidad 4',
+        title: 'Multiplicacion de enteros',
+        focus: 'Pasar de suma repetida a reglas de signos y multiplicacion con agrupacion.',
+        outcome: 'Podras multiplicar enteros y aplicar correctamente las leyes de los signos.',
+        contents: [
+          'Producto como suma repetida',
+          'Factores y producto',
+          'Leyes de signos',
+          'Multiplicacion con agrupacion',
+        ],
+        lessons: integersUnitFourLessons,
+        storageKey: 'edutypes.integers.unit-04.progress',
+      },
+      {
+        id: 'integers-unit-05',
+        slug: 'unidad-5',
+        number: '05',
+        label: 'Unidad 5',
+        title: 'Division y cierre',
+        focus: 'Entender cociente, residuo y usar la division en un problema real.',
+        outcome: 'Podras distinguir cociente y residuo y decidir cuando hace falta un grupo mas.',
+        contents: [
+          'Dividendo y divisor',
+          'Cociente y residuo',
+          'Division exacta',
+          'Aplicacion con presentaciones',
+        ],
+        lessons: integersUnitFiveLessons,
+        storageKey: 'edutypes.integers.unit-05.progress',
       },
     ],
   },

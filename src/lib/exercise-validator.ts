@@ -1,5 +1,5 @@
 import { allCourseUnits } from '../data/course';
-import type { ExerciseCheck } from '../data/unit-types';
+import type { ExerciseCheck, LessonExercise } from '../data/unit-types';
 
 export type ExerciseValidationResult = {
   ok: boolean;
@@ -394,6 +394,131 @@ function findExerciseDefinition(exerciseId: string) {
   return null;
 }
 
+function normalizeIntegerAnswer(sourceText: string) {
+  return sourceText
+    .trim()
+    .replace(/−/g, '-')
+    .replace(/×/g, '*')
+    .replace(/[xX]/g, '*')
+    .replace(/÷/g, '/')
+    .replace(/\s+/g, '');
+}
+
+function evaluateIntegerAnswer(sourceText: string) {
+  const normalized = normalizeIntegerAnswer(sourceText);
+
+  if (normalized.length === 0) {
+    return {
+      ok: false as const,
+      error: 'Escribe una respuesta primero.',
+    };
+  }
+
+  if (!/^[\d+\-*/()]+$/.test(normalized)) {
+    return {
+      ok: false as const,
+      error: 'Aqui solo deben ir numeros enteros y signos de operacion como `+`, `-`, `*`, `/` o parentesis.',
+    };
+  }
+
+  try {
+    const value = new Function(`return (${normalized});`)();
+
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      return {
+        ok: false as const,
+        error: 'No pude obtener un numero con esa respuesta.',
+      };
+    }
+
+    if (!Number.isInteger(value)) {
+      return {
+        ok: false as const,
+        error: 'La respuesta debe terminar en un numero entero, sin decimales.',
+      };
+    }
+
+    return {
+      ok: true as const,
+      value,
+    };
+  } catch {
+    const opened = (normalized.match(/\(/g) ?? []).length;
+    const closed = (normalized.match(/\)/g) ?? []).length;
+
+    if (opened !== closed) {
+      return {
+        ok: false as const,
+        error: 'Revisa los parentesis. Falta abrir o cerrar uno.',
+      };
+    }
+
+    return {
+      ok: false as const,
+      error: 'La cuenta no se puede leer. Revisa signos como `+`, `-`, `*` o `/`.',
+    };
+  }
+}
+
+function validateExpectedAnswer(
+  exercise: LessonExercise,
+  sourceText: string,
+): RuleValidationResult | null {
+  if (!exercise.expectedAnswer) {
+    return null;
+  }
+
+  if (exercise.expectedAnswer.kind !== 'integer') {
+    return null;
+  }
+
+  const parsed = evaluateIntegerAnswer(sourceText);
+
+  if (!parsed.ok) {
+    return {
+      ok: false,
+      successes: [],
+      errors: [parsed.error],
+    };
+  }
+
+  const expected = exercise.expectedAnswer.value;
+
+  if (parsed.value === expected) {
+    return {
+      ok: true,
+      successes: ['El resultado entero es correcto.'],
+      errors: [],
+    };
+  }
+
+  if (expected !== 0 && parsed.value === -expected) {
+    return {
+      ok: false,
+      successes: [],
+      errors: [
+        `Vas bien con el valor absoluto, pero el signo esta al reves. El resultado correcto es ${expected}.`,
+      ],
+    };
+  }
+
+  if (Math.abs(parsed.value - expected) <= 2) {
+    return {
+      ok: false,
+      successes: [],
+      errors: [
+        `Te acercaste, pero ${parsed.value} no es el resultado final. Revisa una suma o resta corta y vuelve a intentar.`,
+      ],
+    };
+  }
+
+  return {
+    ok: false,
+    successes: [],
+    errors: [`Ese resultado no coincide. El resultado correcto no es ${parsed.value}.`],
+  };
+}
+
 function runCheck(check: ExerciseCheck, sourceText: string) {
   const normalizedSource = normalizeCheckText(sourceText);
 
@@ -450,6 +575,12 @@ function validateWithLessonChecks(exerciseId: string, sourceText: string): RuleV
   const successes: string[] = [];
   const errors: string[] = [];
   const normalizedSource = normalizeCheckText(sourceText);
+
+  const expectedAnswerResult = validateExpectedAnswer(exercise, sourceText);
+
+  if (expectedAnswerResult) {
+    return expectedAnswerResult;
+  }
 
   if (normalizedSource.length < exercise.minLength / 2) {
     errors.push('El ejercicio esta demasiado corto para cumplir la consigna.');

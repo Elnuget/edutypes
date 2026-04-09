@@ -25,6 +25,10 @@ export type LessonExercise = {
   placeholder: string;
   minLength: number;
   checks: ExerciseCheck[];
+  expectedAnswer?: {
+    kind: 'integer';
+    value: number;
+  };
 };
 
 export type UnitLesson = {
