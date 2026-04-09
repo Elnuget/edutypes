@@ -368,6 +368,95 @@ a {
   text-transform: lowercase;
 }
 
+.lesson-progress-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+
+.lesson-progress-panel__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.progress-stat {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.progress-stat strong {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.progress-stat small,
+.progress-stat__label,
+.progress-track-block__top span {
+  color: var(--text-muted);
+}
+
+.progress-stat__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.progress-track-block {
+  display: grid;
+  gap: 8px;
+}
+
+.progress-track-block__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.progress-track {
+  height: 12px;
+  border-radius: 999px;
+  background: #eadfce;
+  overflow: hidden;
+}
+
+.progress-track__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #e57c2d 0%, #f0a35e 100%);
+}
+
+.stage-dots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14px, 1fr));
+  gap: 8px;
+}
+
+.stage-dot {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: #d7ccbc;
+}
+
+.stage-dot--completed {
+  background: #e57c2d;
+}
+
+.stage-dot--active {
+  background: #17202b;
+}
+
 .stage-card {
   min-height: 0;
   border-radius: 24px;
@@ -650,6 +739,10 @@ pre {
 
   .lesson-frame__actions-meta {
     text-align: left;
+  }
+
+  .lesson-progress-panel__stats {
+    grid-template-columns: 1fr;
   }
 
   .code-editor__meta {

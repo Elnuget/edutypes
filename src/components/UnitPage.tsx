@@ -220,6 +220,7 @@ function UnitPage({
   const activeStageIndex = Math.min(savedStageIndex, stages.length - 1);
   const activeStage = stages[activeStageIndex];
   const completedLessons = getCompletedLessonsCount(lessons, progress);
+  const activeLessonCompleted = isLessonCompleted(progress, activeLesson.id);
   const nextLesson = getNextLesson(lessons, activeLesson.id);
   const isLastStage = activeStageIndex === stages.length - 1;
   const activeExercise =
@@ -233,6 +234,17 @@ function UnitPage({
   const activeDraft = activeExercise
     ? progress.drafts[activeLesson.id]?.[activeExercise.id] ?? ''
     : '';
+  const activeLessonValidatedCount = activeLesson.exercises.filter(
+    (exercise) => progress.validatedExercises[activeLesson.id]?.[exercise.id] === true,
+  ).length;
+  const activeLessonProgressPercent = Math.round(
+    ((activeStageIndex + 1) / stages.length) * 100,
+  );
+  const overallUnitProgressPercent = Math.round(
+    ((completedLessons + (activeLessonCompleted ? 0 : (activeStageIndex + 1) / stages.length)) /
+      lessons.length) *
+      100,
+  );
   const logicalLines = useMemo(() => {
     const lines = activeDraft.split('\n');
     return lines.length > 0 ? lines : [''];
@@ -446,6 +458,56 @@ function UnitPage({
               );
             })}
           </div>
+
+          <section className="lesson-progress-panel" aria-label="Progreso de la unidad">
+            <div className="lesson-progress-panel__stats">
+              <div className="progress-stat">
+                <span className="progress-stat__label">Unidad</span>
+                <strong>{overallUnitProgressPercent}%</strong>
+                <small>{completedLessons}/{lessons.length} lecciones cerradas</small>
+              </div>
+
+              <div className="progress-stat">
+                <span className="progress-stat__label">Leccion actual</span>
+                <strong>{activeLessonProgressPercent}%</strong>
+                <small>{activeStageIndex + 1}/{stages.length} pasos recorridos</small>
+              </div>
+
+              <div className="progress-stat">
+                <span className="progress-stat__label">Ejercicios</span>
+                <strong>{activeLessonValidatedCount}</strong>
+                <small>{activeLesson.exercises.length} ejercicios en esta leccion</small>
+              </div>
+            </div>
+
+            <div className="progress-track-block">
+              <div className="progress-track-block__top">
+                <strong>Avance de la unidad</strong>
+                <span>{overallUnitProgressPercent}%</span>
+              </div>
+              <div className="progress-track" aria-hidden>
+                <span
+                  className="progress-track__fill"
+                  style={{ width: `${overallUnitProgressPercent}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="stage-dots" aria-label="Pasos de la leccion actual">
+              {stages.map((stage, index) => {
+                const isCompleted = index < activeStageIndex;
+                const isActive = index === activeStageIndex;
+
+                return (
+                  <span
+                    key={stage.id}
+                    className={`stage-dot ${isCompleted ? 'stage-dot--completed' : ''} ${isActive ? 'stage-dot--active' : ''}`}
+                    title={stage.label}
+                  />
+                );
+              })}
+            </div>
+          </section>
 
           <article className="stage-card">
             <div className="stage-card__label">{activeStage.label}</div>
