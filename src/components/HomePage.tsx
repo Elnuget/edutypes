@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 type CourseUnitCard = {
   id: string;
   label: string;
@@ -11,6 +13,7 @@ type CourseUnitCard = {
 };
 
 type HomePageProps = {
+  courseId: string;
   courseTitle: string;
   courseEyebrow: string;
   heroTitle: string;
@@ -18,6 +21,14 @@ type HomePageProps = {
   tags: string[];
   progressLabel: string;
   units: CourseUnitCard[];
+  certificate?: {
+    ready: boolean;
+    storageKey: string;
+    institutionName: string;
+    issuerName: string;
+    issuerRole: string;
+    onDownload: (studentName: string) => Promise<void>;
+  };
   onBack: () => void;
   onOpenUnit: (unitId: string) => void;
 };
@@ -35,6 +46,7 @@ function getUnitActionLabel(unit: CourseUnitCard) {
 }
 
 function HomePage({
+  courseId,
   courseTitle,
   courseEyebrow,
   heroTitle,
@@ -42,13 +54,62 @@ function HomePage({
   tags,
   progressLabel,
   units,
+  certificate,
   onBack,
   onOpenUnit,
 }: HomePageProps) {
+  const [certificateName, setCertificateName] = useState('');
+  const [certificateError, setCertificateError] = useState<string | null>(null);
+  const [certificateSuccess, setCertificateSuccess] = useState<string | null>(null);
+  const [isGeneratingCertificate, setIsGeneratingCertificate] = useState(false);
   const primaryUnit =
     units.find((unit) => unit.unlocked && !unit.completed) ??
     units.find((unit) => unit.unlocked) ??
     units[0];
+
+  useEffect(() => {
+    if (!certificate) {
+      return;
+    }
+
+    const savedName = window.localStorage.getItem(certificate.storageKey) ?? '';
+    setCertificateName(savedName);
+  }, [certificate, courseId]);
+
+  useEffect(() => {
+    if (!certificate) {
+      return;
+    }
+
+    window.localStorage.setItem(certificate.storageKey, certificateName);
+  }, [certificate, certificateName]);
+
+  const handleDownloadCertificate = async () => {
+    const trimmedName = certificateName.trim();
+
+    if (!certificate) {
+      return;
+    }
+
+    if (trimmedName.length < 3) {
+      setCertificateSuccess(null);
+      setCertificateError('Escribe tu nombre antes de descargar el certificado.');
+      return;
+    }
+
+    setIsGeneratingCertificate(true);
+    setCertificateError(null);
+
+    try {
+      await certificate.onDownload(trimmedName);
+      setCertificateSuccess('Tu certificado ya se descargo.');
+    } catch {
+      setCertificateSuccess(null);
+      setCertificateError('No pude generar el certificado en este intento.');
+    } finally {
+      setIsGeneratingCertificate(false);
+    }
+  };
 
   return (
     <div className="page-shell page-shell--home">
@@ -98,6 +159,56 @@ function HomePage({
               </button>
             ))}
           </div>
+
+          {certificate?.ready ? (
+            <section className="certificate-card">
+              <div className="certificate-card__header">
+                <div>
+                  <p className="eyebrow">Certificado</p>
+                  <h2>Descarga tu certificado de finalizacion</h2>
+                </div>
+                <span className="mini-pill">UDLA</span>
+              </div>
+
+              <p className="hero__description">
+                Al completar este curso, la {certificate.institutionName} reconoce tu avance.
+                El certificado se emite a tu nombre y es concedido por la {certificate.issuerRole}{' '}
+                {certificate.issuerName}.
+              </p>
+
+              <label className="certificate-card__field">
+                <span>Nombre para el certificado</span>
+                <input
+                  className="certificate-card__input"
+                  value={certificateName}
+                  onChange={(event) => {
+                    setCertificateError(null);
+                    setCertificateSuccess(null);
+                    setCertificateName(event.target.value);
+                  }}
+                  placeholder="Escribe tu nombre completo"
+                />
+              </label>
+
+              {certificateError ? (
+                <p className="feedback feedback--error">{certificateError}</p>
+              ) : null}
+
+              {certificateSuccess ? (
+                <p className="feedback">{certificateSuccess}</p>
+              ) : null}
+
+              <button
+                className="button button--primary"
+                disabled={isGeneratingCertificate}
+                onClick={() => {
+                  void handleDownloadCertificate();
+                }}
+              >
+                {isGeneratingCertificate ? 'Generando certificado...' : 'Descargar certificado'}
+              </button>
+            </section>
+          ) : null}
 
           {primaryUnit ? (
             <div className="home-card__actions">

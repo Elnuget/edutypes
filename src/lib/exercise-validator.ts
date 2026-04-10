@@ -46,6 +46,16 @@ function normalizeCheckText(sourceText: string) {
     .trim();
 }
 
+function normalizeTextAnswer(sourceText: string) {
+  return sourceText
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function compactCodeText(sourceText: string) {
   return sourceText.toLowerCase().replace(/\s+/g, '');
 }
@@ -460,6 +470,16 @@ function evaluateIntegerAnswer(sourceText: string) {
   }
 }
 
+function countWords(sourceText: string) {
+  const normalized = normalizeTextAnswer(sourceText);
+
+  if (normalized.length === 0) {
+    return 0;
+  }
+
+  return normalized.split(' ').filter(Boolean).length;
+}
+
 function validateExpectedAnswer(
   exercise: LessonExercise,
   sourceText: string,
@@ -468,54 +488,86 @@ function validateExpectedAnswer(
     return null;
   }
 
-  if (exercise.expectedAnswer.kind !== 'integer') {
-    return null;
-  }
+  if (exercise.expectedAnswer.kind === 'integer') {
+    const parsed = evaluateIntegerAnswer(sourceText);
 
-  const parsed = evaluateIntegerAnswer(sourceText);
+    if (!parsed.ok) {
+      return {
+        ok: false,
+        successes: [],
+        errors: [parsed.error],
+      };
+    }
 
-  if (!parsed.ok) {
+    const expected = exercise.expectedAnswer.value;
+
+    if (parsed.value === expected) {
+      return {
+        ok: true,
+        successes: ['El resultado entero es correcto.'],
+        errors: [],
+      };
+    }
+
+    if (expected !== 0 && parsed.value === -expected) {
+      return {
+        ok: false,
+        successes: [],
+        errors: [
+          `Vas bien con el valor absoluto, pero el signo esta al reves. El resultado correcto es ${expected}.`,
+        ],
+      };
+    }
+
+    if (Math.abs(parsed.value - expected) <= 2) {
+      return {
+        ok: false,
+        successes: [],
+        errors: [
+          `Te acercaste, pero ${parsed.value} no es el resultado final. Revisa una suma o resta corta y vuelve a intentar.`,
+        ],
+      };
+    }
+
     return {
       ok: false,
       successes: [],
-      errors: [parsed.error],
+      errors: [`Ese resultado no coincide. El resultado correcto no es ${parsed.value}.`],
     };
   }
 
-  const expected = exercise.expectedAnswer.value;
+  const normalizedAnswer = normalizeTextAnswer(sourceText);
+  const missingKeywords = exercise.expectedAnswer.include.filter(
+    (keyword) => !normalizedAnswer.includes(normalizeTextAnswer(keyword)),
+  );
 
-  if (parsed.value === expected) {
-    return {
-      ok: true,
-      successes: ['El resultado entero es correcto.'],
-      errors: [],
-    };
-  }
-
-  if (expected !== 0 && parsed.value === -expected) {
+  if (
+    exercise.expectedAnswer.minWords &&
+    countWords(sourceText) < exercise.expectedAnswer.minWords
+  ) {
     return {
       ok: false,
       successes: [],
       errors: [
-        `Vas bien con el valor absoluto, pero el signo esta al reves. El resultado correcto es ${expected}.`,
+        `Tu respuesta aun esta muy corta. Necesitas al menos ${exercise.expectedAnswer.minWords} palabras claras.`,
       ],
     };
   }
 
-  if (Math.abs(parsed.value - expected) <= 2) {
+  if (missingKeywords.length > 0) {
     return {
       ok: false,
       successes: [],
       errors: [
-        `Te acercaste, pero ${parsed.value} no es el resultado final. Revisa una suma o resta corta y vuelve a intentar.`,
+        `Todavia faltan ideas clave en tu respuesta. Asegurate de incluir: ${missingKeywords.join(', ')}.`,
       ],
     };
   }
 
   return {
-    ok: false,
-    successes: [],
-    errors: [`Ese resultado no coincide. El resultado correcto no es ${parsed.value}.`],
+    ok: true,
+    successes: ['La respuesta incluye las ideas clave esperadas.'],
+    errors: [],
   };
 }
 
@@ -574,7 +626,10 @@ function validateWithLessonChecks(exerciseId: string, sourceText: string): RuleV
 
   const successes: string[] = [];
   const errors: string[] = [];
-  const normalizedSource = normalizeCheckText(sourceText);
+  const normalizedSource =
+    exercise.responseKind === 'text'
+      ? normalizeTextAnswer(sourceText)
+      : normalizeCheckText(sourceText);
 
   const expectedAnswerResult = validateExpectedAnswer(exercise, sourceText);
 
@@ -1357,6 +1412,22 @@ export async function validateExerciseWithCompiler(
   exerciseId: string,
   sourceText: string,
 ): Promise<ExerciseValidationResult> {
+  const exercise = findExerciseDefinition(exerciseId);
+
+  if (exercise?.responseKind === 'text') {
+    const lessonCheckResult = validateWithLessonChecks(exerciseId, sourceText);
+    return {
+      ok: lessonCheckResult.errors.length === 0,
+      successes: lessonCheckResult.successes,
+      errors: lessonCheckResult.errors,
+      compilerErrors: [],
+      ruleErrors: lessonCheckResult.errors,
+      compilerOk: true,
+      runtimeOutput: [],
+      runtimeError: null,
+    };
+  }
+
   const ts = await import('typescript');
   const { sourceFile, errors: compilerErrors } = getCompilerErrors(ts, sourceText);
   const runtimeResult =

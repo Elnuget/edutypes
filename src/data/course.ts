@@ -1,3 +1,4 @@
+import { entrepreneurshipUnitOneLessons } from './entrepreneurship-unit-one';
 import type { UnitLesson } from './unit-types';
 import { javascriptUnitFourLessons } from './javascript-unit-four';
 import { javascriptUnitOneLessons } from './javascript-unit-one';
@@ -41,9 +42,57 @@ export type CourseDefinition = {
   tags: string[];
   validationLabel: string;
   units: CourseUnitDefinition[];
+  certificate?: {
+    institutionName: string;
+    issuerName: string;
+    issuerRole: string;
+    logoSrc?: string;
+    storageKey: string;
+  };
 };
 
+const udlaLogoSrc = new URL('../assets/udla-logo-red.png', import.meta.url).href;
+
 export const courses: CourseDefinition[] = [
+  {
+    id: 'emprendimiento',
+    title: 'Emprendimiento',
+    eyebrow: 'Curso de emprendimiento',
+    heroTitle: 'Conoce a tu cliente ideal antes de venderle a todo el mundo.',
+    description:
+      'Unidad guiada para entender buyer persona, recopilar informacion, clasificar variables y construir un perfil util para tu estrategia.',
+    courseSummary:
+      'Curso de emprendimiento con una unidad corta sobre buyer persona, respuesta escrita guiada y certificado final.',
+    tags: ['Buyer persona', 'Respuesta escrita', 'Certificado final'],
+    validationLabel: 'Revision de respuesta',
+    certificate: {
+      institutionName: 'Universidad de Las Americas (UDLA)',
+      issuerName: 'Paola Guevara',
+      issuerRole: 'Ing.',
+      logoSrc: udlaLogoSrc,
+      storageKey: 'edutypes.emprendimiento.certificate-name',
+    },
+    units: [
+      {
+        id: 'entrepreneurship-unit-01',
+        slug: 'unidad-1',
+        number: '01',
+        label: 'Unidad 1',
+        title: 'Conociendo a tu cliente ideal',
+        focus: 'Entender buyer persona y convertirlo en una herramienta real para tu emprendimiento.',
+        outcome:
+          'Podras definir un buyer persona, reunir informacion util y construir una mini ficha coherente de cliente ideal.',
+        contents: [
+          'Introduccion al buyer persona',
+          'Metodos para recopilar informacion',
+          'Variables clave del cliente ideal',
+          'Construccion paso a paso del perfil',
+        ],
+        lessons: entrepreneurshipUnitOneLessons,
+        storageKey: 'edutypes.entrepreneurship.unit-01.progress',
+      },
+    ],
+  },
   {
     id: 'typescript',
     title: 'TypeScript',

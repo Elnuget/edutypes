@@ -84,6 +84,10 @@ function getEditorCursor(text: string, selectionStart: number) {
 }
 
 function exerciseExpectsConsoleOutput(exercise: LessonExercise) {
+  if (exercise.responseKind === 'text') {
+    return false;
+  }
+
   const instructionText = exercise.instructions.join(' ').toLowerCase();
 
   if (instructionText.includes('console.log') || instructionText.includes('consola')) {
@@ -102,6 +106,7 @@ function exerciseExpectsConsoleOutput(exercise: LessonExercise) {
 function buildExerciseSuccessMessage(
   validationLabel: string,
   result: Awaited<ReturnType<typeof validateExerciseWithCompiler>>,
+  exercise: LessonExercise,
 ) {
   const parts = ['Excelente. Este ejercicio ya quedo correcto.'];
 
@@ -112,11 +117,11 @@ function buildExerciseSuccessMessage(
     parts.push(`Detecte: ${result.successes.join(', ')}.`);
   }
 
-  if (result.runtimeOutput.length > 0) {
+  if (exercise.responseKind !== 'text' && result.runtimeOutput.length > 0) {
     parts.push('Y ademas ya dejaste una salida visible en la consola.');
   }
 
-  if (result.runtimeError) {
+  if (exercise.responseKind !== 'text' && result.runtimeError) {
     parts.push(`La consola aun marco este detalle: ${result.runtimeError}`);
   }
 
@@ -228,6 +233,7 @@ function UnitPage({
   const activeExerciseValidated = activeExercise
     ? progress.validatedExercises[activeLesson.id]?.[activeExercise.id] === true
     : false;
+  const activeExerciseIsText = activeExercise?.responseKind === 'text';
   const activeExerciseExpectsConsole = activeExercise
     ? exerciseExpectsConsoleOutput(activeExercise)
     : false;
@@ -365,11 +371,19 @@ function UnitPage({
 
         const parts: string[] = [];
 
-        parts.push(
-          result.compilerOk
-            ? `${validationLabel}: correcta.`
-            : `${validationLabel}: incorrecta. ${result.compilerErrors.join(' ')}`,
-        );
+        if (activeExercise.responseKind === 'text') {
+          parts.push(
+            result.ruleErrors.length === 0
+              ? `${validationLabel}: correcta.`
+              : `${validationLabel}: necesita un ajuste.`,
+          );
+        } else {
+          parts.push(
+            result.compilerOk
+              ? `${validationLabel}: correcta.`
+              : `${validationLabel}: incorrecta. ${result.compilerErrors.join(' ')}`,
+          );
+        }
 
         if (result.ruleErrors.length > 0) {
           parts.push(`Objetivo del ejercicio: ${result.ruleErrors.join(' ')}`);
@@ -396,7 +410,7 @@ function UnitPage({
       onSetExerciseValidated(activeLesson.id, activeExercise.id, true);
       setFeedback({
         tone: 'success',
-        text: buildExerciseSuccessMessage(validationLabel, result),
+        text: buildExerciseSuccessMessage(validationLabel, result, activeExercise),
       });
       return;
     }
@@ -541,37 +555,20 @@ function UnitPage({
                   ))}
                 </ul>
 
-                <div className="code-editor-shell">
-                  <div className="code-editor__meta">
-                    <span>{editorLineCount} lineas</span>
-                    <span>
-                      Linea {editorCursor.line}, columna {editorCursor.column}
-                    </span>
-                  </div>
-
-                  <div className="code-editor__frame">
-                    <div ref={gutterRef} className="code-editor__gutter" aria-hidden>
-                      {Array.from({ length: editorLineCount }, (_, index) => (
-                        <span
-                          key={index + 1}
-                          style={{
-                            height: `${logicalLineHeights[index] ?? 24}px`,
-                          }}
-                        >
-                          {index + 1}
-                        </span>
-                      ))}
+                {activeExerciseIsText ? (
+                  <div className="response-editor-shell">
+                    <div className="code-editor__meta">
+                      <span>{editorLineCount} lineas</span>
+                      <span>{activeDraft.trim().split(/\s+/).filter(Boolean).length} palabras</span>
                     </div>
 
                     <textarea
                       ref={textareaRef}
-                      className="code-editor"
-                      spellCheck={false}
+                      className="response-editor"
+                      spellCheck={true}
                       value={activeDraft}
                       onChange={(event) => {
                         setFeedback(null);
-                        setConsoleOutput([]);
-                        setConsoleError(null);
                         updateCursorFromTextarea(event.target);
                         onChangeDraft(activeLesson.id, activeStage.exercise.id, event.target.value);
                       }}
@@ -584,12 +581,9 @@ function UnitPage({
                       onSelect={(event) => {
                         updateCursorFromTextarea(event.currentTarget);
                       }}
-                      onScroll={(event) => {
-                        syncGutterScroll(event.currentTarget.scrollTop);
-                      }}
                       onPaste={(event) => {
                         event.preventDefault();
-                        setPasteNotice('Pegar esta bloqueado. Solo teclado.');
+                        setPasteNotice('Pegar esta bloqueado. Escribe tu respuesta con tus palabras.');
                       }}
                       onDrop={(event) => {
                         event.preventDefault();
@@ -598,45 +592,104 @@ function UnitPage({
                       placeholder={activeStage.exercise.placeholder}
                     />
                   </div>
+                ) : (
+                  <div className="code-editor-shell">
+                    <div className="code-editor__meta">
+                      <span>{editorLineCount} lineas</span>
+                      <span>
+                        Linea {editorCursor.line}, columna {editorCursor.column}
+                      </span>
+                    </div>
 
-                  <div className="code-editor__measure" aria-hidden>
-                    <div
-                      className="code-editor__measure-content"
-                      style={{
-                        width: editorWidth > 0 ? `${editorWidth}px` : undefined,
-                      }}
-                    >
-                      {logicalLines.map((line, index) => (
-                        <div
-                          key={`${index}-${line}`}
-                          ref={(element) => {
-                            lineMeasureRefs.current[index] = element;
-                          }}
-                          className="code-editor__measure-line"
-                        >
-                          {line || ' '}
-                        </div>
-                      ))}
+                    <div className="code-editor__frame">
+                      <div ref={gutterRef} className="code-editor__gutter" aria-hidden>
+                        {Array.from({ length: editorLineCount }, (_, index) => (
+                          <span
+                            key={index + 1}
+                            style={{
+                              height: `${logicalLineHeights[index] ?? 24}px`,
+                            }}
+                          >
+                            {index + 1}
+                          </span>
+                        ))}
+                      </div>
+
+                      <textarea
+                        ref={textareaRef}
+                        className="code-editor"
+                        spellCheck={false}
+                        value={activeDraft}
+                        onChange={(event) => {
+                          setFeedback(null);
+                          setConsoleOutput([]);
+                          setConsoleError(null);
+                          updateCursorFromTextarea(event.target);
+                          onChangeDraft(activeLesson.id, activeStage.exercise.id, event.target.value);
+                        }}
+                        onClick={(event) => {
+                          updateCursorFromTextarea(event.currentTarget);
+                        }}
+                        onKeyUp={(event) => {
+                          updateCursorFromTextarea(event.currentTarget);
+                        }}
+                        onSelect={(event) => {
+                          updateCursorFromTextarea(event.currentTarget);
+                        }}
+                        onScroll={(event) => {
+                          syncGutterScroll(event.currentTarget.scrollTop);
+                        }}
+                        onPaste={(event) => {
+                          event.preventDefault();
+                          setPasteNotice('Pegar esta bloqueado. Solo teclado.');
+                        }}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          setPasteNotice('Arrastrar tambien esta bloqueado.');
+                        }}
+                        placeholder={activeStage.exercise.placeholder}
+                      />
+                    </div>
+
+                    <div className="code-editor__measure" aria-hidden>
+                      <div
+                        className="code-editor__measure-content"
+                        style={{
+                          width: editorWidth > 0 ? `${editorWidth}px` : undefined,
+                        }}
+                      >
+                        {logicalLines.map((line, index) => (
+                          <div
+                            key={`${index}-${line}`}
+                            ref={(element) => {
+                              lineMeasureRefs.current[index] = element;
+                            }}
+                            className="code-editor__measure-line"
+                          >
+                            {line || ' '}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="console-card">
+                      <div className="console-card__label">Consola</div>
+                      {consoleError ? (
+                        <p className="console-card__error">{consoleError}</p>
+                      ) : consoleOutput.length > 0 ? (
+                        <pre className="console-card__output">
+                          {consoleOutput.join('\n')}
+                        </pre>
+                      ) : (
+                        <p className="console-card__empty">
+                          {activeExerciseExpectsConsole
+                            ? 'Este ejercicio espera una salida visible. Revisa que exista la variable, funcion o clase necesaria y que termines mostrando algo en consola.'
+                            : 'Aun no hay salida. Usa `console.log(...)` si quieres ver resultado.'}
+                        </p>
+                      )}
                     </div>
                   </div>
-
-                  <div className="console-card">
-                    <div className="console-card__label">Consola</div>
-                    {consoleError ? (
-                      <p className="console-card__error">{consoleError}</p>
-                    ) : consoleOutput.length > 0 ? (
-                      <pre className="console-card__output">
-                        {consoleOutput.join('\n')}
-                      </pre>
-                    ) : (
-                      <p className="console-card__empty">
-                        {activeExerciseExpectsConsole
-                          ? 'Este ejercicio espera una salida visible. Revisa que exista la variable, funcion o clase necesaria y que termines mostrando algo en consola.'
-                          : 'Aun no hay salida. Usa `console.log(...)` si quieres ver resultado.'}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                )}
               </div>
             ) : null}
           </article>
@@ -663,7 +716,9 @@ function UnitPage({
                 {activeExercise
                   ? activeExerciseValidated
                     ? 'ejercicio validado'
-                    : 'primero revisa este ejercicio'
+                    : activeExerciseIsText
+                      ? 'primero revisa tu respuesta'
+                      : 'primero revisa este ejercicio'
                   : `${completedLessons}/${lessons.length} lecciones completadas`}
               </span>
             </div>

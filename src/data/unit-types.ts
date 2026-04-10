@@ -25,10 +25,17 @@ export type LessonExercise = {
   placeholder: string;
   minLength: number;
   checks: ExerciseCheck[];
-  expectedAnswer?: {
-    kind: 'integer';
-    value: number;
-  };
+  responseKind?: 'code' | 'text';
+  expectedAnswer?:
+    | {
+        kind: 'integer';
+        value: number;
+      }
+    | {
+        kind: 'keywords';
+        include: string[];
+        minWords?: number;
+      };
 };
 
 export type UnitLesson = {

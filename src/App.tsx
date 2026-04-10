@@ -5,6 +5,7 @@ import UnitPage from './components/UnitPage';
 import { courses, getCourseDefinition, getCourseUnit } from './data/course';
 import type { CourseDefinition, CourseUnitDefinition } from './data/course';
 import type { UnitLesson } from './data/unit-types';
+import { downloadCourseCertificate } from './lib/certificate';
 import {
   createInitialProgress,
   getCompletedLessonsCount,
@@ -340,9 +341,11 @@ function App() {
 
   if (route.kind === 'course' && currentCourse) {
     const completedUnits = currentCourseUnitStates.filter((unit) => unit.completed).length;
+    const certificateReady = completedUnits === currentCourse.units.length;
 
     return (
       <HomePage
+        courseId={currentCourse.id}
         courseTitle={currentCourse.title}
         courseEyebrow={currentCourse.eyebrow}
         heroTitle={currentCourse.heroTitle}
@@ -360,6 +363,28 @@ function App() {
           unlocked: unit.unlocked,
           lockedReason: unit.lockedReason,
         }))}
+        certificate={
+          currentCourse.certificate
+            ? {
+                ready: certificateReady,
+                storageKey: currentCourse.certificate.storageKey,
+                institutionName: currentCourse.certificate.institutionName,
+                issuerName: currentCourse.certificate.issuerName,
+                issuerRole: currentCourse.certificate.issuerRole,
+                onDownload: async (studentName: string) => {
+                  await downloadCourseCertificate({
+                    studentName,
+                    courseTitle: currentCourse.title,
+                    unitTitle: currentCourse.units[0]?.title ?? 'unidad completada',
+                    institutionName: currentCourse.certificate?.institutionName ?? 'UDLA',
+                    issuerName: currentCourse.certificate?.issuerName ?? 'Paola Guevara',
+                    issuerRole: currentCourse.certificate?.issuerRole ?? 'Ing.',
+                    logoSrc: currentCourse.certificate?.logoSrc,
+                  });
+                },
+              }
+            : undefined
+        }
         onBack={goToCatalog}
         onOpenUnit={(unitId) => {
           const selectedUnit = currentCourse.units.find((unit) => unit.id === unitId);

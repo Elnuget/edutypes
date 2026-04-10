@@ -187,6 +187,48 @@ a {
   gap: 10px;
 }
 
+.certificate-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+
+.certificate-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.certificate-card__header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.certificate-card__field {
+  display: grid;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.certificate-card__input {
+  min-height: 50px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid #ccb89e;
+  background: #fffdfa;
+  color: var(--text);
+}
+
+.certificate-card__input:focus {
+  outline: 2px solid rgba(229, 124, 45, 0.18);
+  outline-offset: -1px;
+}
+
 .unit-card {
   display: grid;
   gap: 4px;
@@ -547,6 +589,11 @@ pre {
   gap: 8px;
 }
 
+.response-editor-shell {
+  display: grid;
+  gap: 10px;
+}
+
 .code-editor__meta {
   display: flex;
   justify-content: space-between;
@@ -624,6 +671,23 @@ pre {
 }
 
 .code-editor:focus {
+  outline: 2px solid rgba(229, 124, 45, 0.16);
+  outline-offset: -2px;
+}
+
+.response-editor {
+  width: 100%;
+  min-height: 220px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid #ccb89e;
+  background: #fffdfa;
+  color: var(--text);
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.response-editor:focus {
   outline: 2px solid rgba(229, 124, 45, 0.16);
   outline-offset: -2px;
 }
@@ -739,6 +803,11 @@ pre {
 
   .lesson-frame__actions-meta {
     text-align: left;
+  }
+
+  .certificate-card__header {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .lesson-progress-panel__stats {
