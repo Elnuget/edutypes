@@ -230,6 +230,10 @@ function UnitPage({
   const isLastStage = activeStageIndex === stages.length - 1;
   const activeExercise =
     activeStage.kind === 'exercise' ? activeStage.exercise : null;
+  const activeContentBlock =
+    activeStage.kind === 'content'
+      ? activeLesson.content.find((block) => block.title === activeStage.title) ?? null
+      : null;
   const activeExerciseValidated = activeExercise
     ? progress.validatedExercises[activeLesson.id]?.[activeExercise.id] === true
     : false;
@@ -541,7 +545,44 @@ function UnitPage({
                 {activeStage.body.map((paragraph) => (
                   <p key={paragraph}>{renderRichText(paragraph)}</p>
                 ))}
-                {activeStage.code ? <pre>{activeStage.code}</pre> : null}
+                {activeStage.code ? (
+                  <div className="stage-card__example">
+                    <span className="stage-card__example-label">Ejemplo rapido</span>
+                    <pre>{activeStage.code}</pre>
+                  </div>
+                ) : null}
+                {activeContentBlock?.embed ? (
+                  <div className="stage-embed-card">
+                    <div className="stage-embed-card__header">
+                      <div>
+                        <span className="stage-embed-card__eyebrow">Apoyo interactivo</span>
+                        <strong>{activeContentBlock.embed.title}</strong>
+                      </div>
+                      <a
+                        className="button button--secondary"
+                        href={activeContentBlock.embed.url}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        Abrir en nueva pestana
+                      </a>
+                    </div>
+
+                    <iframe
+                      className="stage-embed-card__frame"
+                      src={activeContentBlock.embed.url}
+                      title={activeContentBlock.embed.title}
+                      loading="lazy"
+                      style={{
+                        height: `${activeContentBlock.embed.height ?? 380}px`,
+                      }}
+                    />
+
+                    <small className="stage-embed-card__source">
+                      Fuente: {activeContentBlock.embed.sourceLabel}
+                    </small>
+                  </div>
+                ) : null}
               </div>
             ) : null}
 

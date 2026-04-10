@@ -187,6 +187,26 @@ a {
   gap: 10px;
 }
 
+.unit-card__topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.unit-card__topic-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #fff7ef;
+  border: 1px solid #e8d4bf;
+  color: #7b5b36;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .certificate-card {
   display: grid;
   gap: 14px;
@@ -260,6 +280,31 @@ a {
 
 .catalog-card__courses {
   display: grid;
+  gap: 18px;
+}
+
+.catalog-section {
+  display: grid;
+  gap: 12px;
+}
+
+.catalog-section__header {
+  display: grid;
+  gap: 8px;
+}
+
+.catalog-section__header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.catalog-section__header p:last-child {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.catalog-section__grid {
+  display: grid;
   gap: 10px;
 }
 
@@ -284,6 +329,25 @@ a {
   display: grid;
   gap: 10px;
   padding-top: 4px;
+}
+
+.course-link-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.course-link-card__tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #fff7ef;
+  border: 1px solid #e8d4bf;
+  color: #7b5b36;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .certificate-inline-field {
@@ -371,6 +435,57 @@ a {
   border: 1px solid var(--border);
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+.stage-card__example {
+  display: grid;
+  gap: 8px;
+}
+
+.stage-card__example-label {
+  color: var(--warning);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stage-embed-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid #e5d7c7;
+  background: #fff7ef;
+}
+
+.stage-embed-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stage-embed-card__eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stage-embed-card__frame {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fffdfa;
+}
+
+.stage-embed-card__source {
+  color: var(--text-muted);
 }
 
 .lesson-stage {

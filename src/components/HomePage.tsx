@@ -5,6 +5,7 @@ type CourseUnitCard = {
   label: string;
   title: string;
   focus: string;
+  contentsPreview: string[];
   completedLessons: number;
   totalLessons: number;
   completed: boolean;
@@ -155,6 +156,13 @@ function HomePage({
                     : unit.lockedReason}
                 </span>
                 <small>{unit.focus}</small>
+                <div className="unit-card__topics">
+                  {unit.contentsPreview.map((item) => (
+                    <span key={`${unit.id}-${item}`} className="unit-card__topic-pill">
+                      {item}
+                    </span>
+                  ))}
+                </div>
               </button>
             ))}
           </div>

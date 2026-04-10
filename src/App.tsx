@@ -34,6 +34,22 @@ type CourseUnitState = {
 
 const allUnits = courses.flatMap((course) => course.units);
 
+function getCourseCategory(courseId: string) {
+  if (
+    courseId === 'numeros-enteros' ||
+    courseId === 'teoria-numeros' ||
+    courseId === 'numeros-racionales'
+  ) {
+    return 'Matematica';
+  }
+
+  if (courseId === 'emprendimiento') {
+    return 'Emprendimiento';
+  }
+
+  return 'Programacion';
+}
+
 function getRouteFromHash(): Route {
   const segments = window.location.hash.replace(/^#/, '').split('/').filter(Boolean);
 
@@ -304,9 +320,11 @@ function App() {
 
     return {
       id: course.id,
+      category: getCourseCategory(course.id),
       title: course.title,
       eyebrow: course.eyebrow,
       description: course.description,
+      tags: course.tags,
       progressLabel: `${completedUnits}/${course.units.length} unidades`,
       actionLabel:
         completedUnits === course.units.length
@@ -387,6 +405,7 @@ function App() {
           label: unit.definition.label,
           title: unit.definition.title,
           focus: unit.definition.focus,
+          contentsPreview: unit.definition.contents.slice(0, 3),
           completedLessons: unit.completedLessons,
           totalLessons: unit.totalLessons,
           completed: unit.completed,

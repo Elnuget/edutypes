@@ -414,6 +414,164 @@ function normalizeIntegerAnswer(sourceText: string) {
     .replace(/\s+/g, '');
 }
 
+function getGreatestCommonDivisor(left: number, right: number) {
+  let a = Math.abs(left);
+  let b = Math.abs(right);
+
+  while (b !== 0) {
+    const temp = b;
+    b = a % b;
+    a = temp;
+  }
+
+  return a === 0 ? 1 : a;
+}
+
+function normalizeRationalInput(sourceText: string) {
+  return sourceText
+    .trim()
+    .replace(/−/g, '-')
+    .replace(/÷/g, '/')
+    .replace(/\s*\/\s*/g, '/')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+type ParsedRationalAnswer =
+  | {
+      ok: true;
+      numerator: number;
+      denominator: number;
+      formatUsed: 'integer' | 'fraction' | 'mixed';
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+function parseRationalAnswer(
+  sourceText: string,
+  format: 'fraction' | 'mixed' | 'any' = 'any',
+): ParsedRationalAnswer {
+  const normalized = normalizeRationalInput(sourceText);
+
+  if (normalized.length === 0) {
+    return {
+      ok: false,
+      error: 'Escribe una respuesta primero.',
+    };
+  }
+
+  if (!/^-?\d+(?: \d+\/\d+|\/\d+)?$/.test(normalized)) {
+    if (format === 'mixed') {
+      return {
+        ok: false,
+        error: 'Aqui debes escribir una fraccion mixta con este formato: `2 3/5`.',
+      };
+    }
+
+    if (format === 'fraction') {
+      return {
+        ok: false,
+        error: 'Aqui debes escribir una fraccion como `7/4`.',
+      };
+    }
+
+    return {
+      ok: false,
+      error: 'La respuesta debe verse como entero, fraccion `a/b` o fraccion mixta `2 3/5`.',
+    };
+  }
+
+  const mixedMatch = normalized.match(/^(-?\d+) (\d+)\/(\d+)$/);
+
+  if (mixedMatch) {
+    if (format === 'fraction') {
+      return {
+        ok: false,
+        error: 'Aqui debes responder con una fraccion impropia o propia, no con mixta.',
+      };
+    }
+
+    const whole = Number.parseInt(mixedMatch[1], 10);
+    const numeratorPart = Number.parseInt(mixedMatch[2], 10);
+    const denominator = Number.parseInt(mixedMatch[3], 10);
+
+    if (denominator === 0) {
+      return {
+        ok: false,
+        error: 'El denominador no puede ser `0`.',
+      };
+    }
+
+    if (numeratorPart >= denominator) {
+      return {
+        ok: false,
+        error: 'En una fraccion mixta, la parte fraccionaria debe ser menor que el denominador.',
+      };
+    }
+
+    const sign = whole < 0 ? -1 : 1;
+    const absoluteWhole = Math.abs(whole);
+
+    return {
+      ok: true,
+      numerator: sign * (absoluteWhole * denominator + numeratorPart),
+      denominator,
+      formatUsed: 'mixed',
+    };
+  }
+
+  const fractionMatch = normalized.match(/^(-?\d+)\/(\d+)$/);
+
+  if (fractionMatch) {
+    if (format === 'mixed') {
+      return {
+        ok: false,
+        error: 'Aqui debes responder con una fraccion mixta como `2 3/5`.',
+      };
+    }
+
+    const numerator = Number.parseInt(fractionMatch[1], 10);
+    const denominator = Number.parseInt(fractionMatch[2], 10);
+
+    if (denominator === 0) {
+      return {
+        ok: false,
+        error: 'El denominador no puede ser `0`.',
+      };
+    }
+
+    return {
+      ok: true,
+      numerator,
+      denominator,
+      formatUsed: 'fraction',
+    };
+  }
+
+  if (format === 'mixed') {
+    return {
+      ok: false,
+      error: 'Aqui debes responder con una fraccion mixta como `2 3/5`.',
+    };
+  }
+
+  if (format === 'fraction') {
+    return {
+      ok: false,
+      error: 'Aqui debes responder con una fraccion como `7/4`.',
+    };
+  }
+
+  return {
+    ok: true,
+    numerator: Number.parseInt(normalized, 10),
+    denominator: 1,
+    formatUsed: 'integer',
+  };
+}
+
 function evaluateIntegerAnswer(sourceText: string) {
   const normalized = normalizeIntegerAnswer(sourceText);
 
@@ -533,6 +691,80 @@ function validateExpectedAnswer(
       ok: false,
       successes: [],
       errors: [`Ese resultado no coincide. El resultado correcto no es ${parsed.value}.`],
+    };
+  }
+
+  if (exercise.expectedAnswer.kind === 'rational') {
+    const parsed = parseRationalAnswer(
+      sourceText,
+      exercise.expectedAnswer.format ?? 'any',
+    );
+
+    if (!parsed.ok) {
+      return {
+        ok: false,
+        successes: [],
+        errors: [parsed.error],
+      };
+    }
+
+    const expectedNumerator = exercise.expectedAnswer.numerator;
+    const expectedDenominator = exercise.expectedAnswer.denominator;
+    const sameValue =
+      parsed.numerator * expectedDenominator === expectedNumerator * parsed.denominator;
+
+    if (!sameValue) {
+      if (parsed.numerator * expectedDenominator === -expectedNumerator * parsed.denominator) {
+        return {
+          ok: false,
+          successes: [],
+          errors: ['Vas bien con la magnitud, pero el signo esta al reves.'],
+        };
+      }
+
+      return {
+        ok: false,
+        successes: [],
+        errors: ['La fraccion no representa el valor correcto. Revisa numerador y denominador.'],
+      };
+    }
+
+    if (exercise.expectedAnswer.simplified) {
+      const gcd = getGreatestCommonDivisor(parsed.numerator, parsed.denominator);
+
+      if (gcd > 1) {
+        return {
+          ok: false,
+          successes: [],
+          errors: ['La respuesta es equivalente, pero todavia no esta simplificada.'],
+        };
+      }
+    }
+
+    if (
+      exercise.expectedAnswer.format === 'fraction' &&
+      parsed.formatUsed !== 'fraction' &&
+      !(parsed.formatUsed === 'integer' && expectedDenominator === 1)
+    ) {
+      return {
+        ok: false,
+        successes: [],
+        errors: ['El valor es correcto, pero aqui debes escribirlo en forma de fraccion.'],
+      };
+    }
+
+    if (exercise.expectedAnswer.format === 'mixed' && parsed.formatUsed !== 'mixed') {
+      return {
+        ok: false,
+        successes: [],
+        errors: ['El valor es correcto, pero aqui debes escribirlo en forma mixta.'],
+      };
+    }
+
+    return {
+      ok: true,
+      successes: ['La respuesta racional es correcta.'],
+      errors: [],
     };
   }
 

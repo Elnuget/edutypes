@@ -2,6 +2,12 @@ export type LessonContentBlock = {
   title: string;
   body: string[];
   code?: string;
+  embed?: {
+    title: string;
+    url: string;
+    sourceLabel: string;
+    height?: number;
+  };
 };
 
 export type ExerciseCheck =
@@ -30,6 +36,13 @@ export type LessonExercise = {
     | {
         kind: 'integer';
         value: number;
+      }
+    | {
+        kind: 'rational';
+        numerator: number;
+        denominator: number;
+        format?: 'fraction' | 'mixed' | 'any';
+        simplified?: boolean;
       }
     | {
         kind: 'keywords';
