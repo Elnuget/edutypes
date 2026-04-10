@@ -281,10 +281,14 @@ function App() {
     }
 
     return async (studentName: string) => {
+      const firstUnit = course.units[0];
+
       await downloadCourseCertificate({
         studentName,
         courseTitle: course.title,
-        unitTitle: course.units[0]?.title ?? 'unidad completada',
+        unitTitle: firstUnit
+          ? `la ${firstUnit.label}: ${firstUnit.title}`
+          : 'la unidad completada',
         institutionName: course.certificate?.institutionName ?? 'UDLA',
         issuerName: course.certificate?.issuerName ?? 'Paola Guevara',
         issuerRole: course.certificate?.issuerRole ?? 'Ing.',
