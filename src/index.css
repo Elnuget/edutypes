@@ -274,6 +274,42 @@ a {
   color: var(--text);
 }
 
+.course-link-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.course-link-card__certificate {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.certificate-inline-field {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.certificate-inline-field span {
+  color: var(--text);
+}
+
+.certificate-inline-field__input {
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid #ccb89e;
+  background: #fffdfa;
+  color: var(--text);
+}
+
+.certificate-inline-field__input:focus {
+  outline: 2px solid rgba(229, 124, 45, 0.18);
+  outline-offset: -1px;
+}
+
 .course-link-card p {
   margin: 0;
   color: var(--text-muted);

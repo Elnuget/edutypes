@@ -22,7 +22,6 @@ type HomePageProps = {
   progressLabel: string;
   units: CourseUnitCard[];
   certificate?: {
-    ready: boolean;
     storageKey: string;
     institutionName: string;
     issuerName: string;
@@ -160,7 +159,7 @@ function HomePage({
             ))}
           </div>
 
-          {certificate?.ready ? (
+          {certificate ? (
             <section className="certificate-card">
               <div className="certificate-card__header">
                 <div>
@@ -171,9 +170,9 @@ function HomePage({
               </div>
 
               <p className="hero__description">
-                Al completar este curso, la {certificate.institutionName} reconoce tu avance.
-                El certificado se emite a tu nombre y es concedido por la {certificate.issuerRole}{' '}
-                {certificate.issuerName}.
+                Si quieres, puedes completar la unidad. Pero el certificado ya esta disponible
+                desde aqui. La {certificate.institutionName} lo emite a tu nombre y es concedido
+                por la {certificate.issuerRole} {certificate.issuerName}.
               </p>
 
               <label className="certificate-card__field">

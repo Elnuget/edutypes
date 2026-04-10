@@ -275,6 +275,24 @@ function App() {
     }));
   };
 
+  const buildCertificateDownloadHandler = (course: CourseDefinition) => {
+    if (!course.certificate) {
+      return null;
+    }
+
+    return async (studentName: string) => {
+      await downloadCourseCertificate({
+        studentName,
+        courseTitle: course.title,
+        unitTitle: course.units[0]?.title ?? 'unidad completada',
+        institutionName: course.certificate?.institutionName ?? 'UDLA',
+        issuerName: course.certificate?.issuerName ?? 'Paola Guevara',
+        issuerRole: course.certificate?.issuerRole ?? 'Ing.',
+        logoSrc: course.certificate?.logoSrc,
+      });
+    };
+  };
+
   const catalogItems = courses.map((course) => {
     const unitStates = getCourseUnitStates(course, progressByUnit);
     const completedUnits = unitStates.filter((unit) => unit.completed).length;
@@ -294,6 +312,15 @@ function App() {
             : 'Abrir curso',
       totalUnits: course.units.length,
       completedUnits,
+      certificate: course.certificate
+        ? {
+            storageKey: course.certificate.storageKey,
+            institutionName: course.certificate.institutionName,
+            issuerName: course.certificate.issuerName,
+            issuerRole: course.certificate.issuerRole,
+            onDownload: buildCertificateDownloadHandler(course)!,
+          }
+        : undefined,
     };
   });
 
@@ -341,7 +368,6 @@ function App() {
 
   if (route.kind === 'course' && currentCourse) {
     const completedUnits = currentCourseUnitStates.filter((unit) => unit.completed).length;
-    const certificateReady = completedUnits === currentCourse.units.length;
 
     return (
       <HomePage
@@ -366,22 +392,11 @@ function App() {
         certificate={
           currentCourse.certificate
             ? {
-                ready: certificateReady,
                 storageKey: currentCourse.certificate.storageKey,
                 institutionName: currentCourse.certificate.institutionName,
                 issuerName: currentCourse.certificate.issuerName,
                 issuerRole: currentCourse.certificate.issuerRole,
-                onDownload: async (studentName: string) => {
-                  await downloadCourseCertificate({
-                    studentName,
-                    courseTitle: currentCourse.title,
-                    unitTitle: currentCourse.units[0]?.title ?? 'unidad completada',
-                    institutionName: currentCourse.certificate?.institutionName ?? 'UDLA',
-                    issuerName: currentCourse.certificate?.issuerName ?? 'Paola Guevara',
-                    issuerRole: currentCourse.certificate?.issuerRole ?? 'Ing.',
-                    logoSrc: currentCourse.certificate?.logoSrc,
-                  });
-                },
+                onDownload: buildCertificateDownloadHandler(currentCourse)!,
               }
             : undefined
         }

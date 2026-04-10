@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 type CourseCatalogItem = {
   id: string;
   title: string;
@@ -7,6 +9,13 @@ type CourseCatalogItem = {
   actionLabel: string;
   totalUnits: number;
   completedUnits: number;
+  certificate?: {
+    storageKey: string;
+    institutionName: string;
+    issuerName: string;
+    issuerRole: string;
+    onDownload: (studentName: string) => Promise<void>;
+  };
 };
 
 type CourseCatalogPageProps = {
@@ -15,6 +24,52 @@ type CourseCatalogPageProps = {
 };
 
 function CourseCatalogPage({ courses, onOpenCourse }: CourseCatalogPageProps) {
+  const [certificateNames, setCertificateNames] = useState<Record<string, string>>({});
+  const [certificateBusyId, setCertificateBusyId] = useState<string | null>(null);
+  const [certificateErrorId, setCertificateErrorId] = useState<string | null>(null);
+  const [certificateSuccessId, setCertificateSuccessId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const nextNames = Object.fromEntries(
+      courses
+        .filter((course) => course.certificate)
+        .map((course) => [
+          course.id,
+          window.localStorage.getItem(course.certificate?.storageKey ?? '') ?? '',
+        ]),
+    );
+
+    setCertificateNames(nextNames);
+  }, [courses]);
+
+  const handleDownloadCertificate = async (course: CourseCatalogItem) => {
+    if (!course.certificate) {
+      return;
+    }
+
+    const studentName = (certificateNames[course.id] ?? '').trim();
+
+    if (studentName.length < 3) {
+      setCertificateSuccessId(null);
+      setCertificateErrorId(course.id);
+      return;
+    }
+
+    setCertificateBusyId(course.id);
+    setCertificateErrorId(null);
+
+    try {
+      window.localStorage.setItem(course.certificate.storageKey, studentName);
+      await course.certificate.onDownload(studentName);
+      setCertificateSuccessId(course.id);
+    } catch {
+      setCertificateSuccessId(null);
+      setCertificateErrorId(course.id);
+    } finally {
+      setCertificateBusyId(null);
+    }
+  };
+
   return (
     <div className="page-shell page-shell--home">
       <main className="home-stage">
@@ -40,11 +95,7 @@ function CourseCatalogPage({ courses, onOpenCourse }: CourseCatalogPageProps) {
 
           <div className="catalog-card__courses">
             {courses.map((course) => (
-              <button
-                key={course.id}
-                className="course-link-card"
-                onClick={() => onOpenCourse(course.id)}
-              >
+              <article key={course.id} className="course-link-card">
                 <div className="course-link-card__top">
                   <div>
                     <span className="course-link-card__eyebrow">{course.eyebrow}</span>
@@ -57,9 +108,70 @@ function CourseCatalogPage({ courses, onOpenCourse }: CourseCatalogPageProps) {
                   <span>
                     {course.completedUnits}/{course.totalUnits} unidades completas
                   </span>
-                  <span>{course.actionLabel}</span>
+                  <span>{course.certificate ? 'Certificado disponible' : course.actionLabel}</span>
                 </div>
-              </button>
+
+                {course.certificate ? (
+                  <div className="course-link-card__certificate">
+                    <label className="certificate-inline-field">
+                      <span>Nombre para el certificado</span>
+                      <input
+                        className="certificate-inline-field__input"
+                        value={certificateNames[course.id] ?? ''}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setCertificateErrorId(null);
+                          setCertificateSuccessId(null);
+                          setCertificateNames((current) => ({
+                            ...current,
+                            [course.id]: value,
+                          }));
+                        }}
+                        placeholder="Escribe tu nombre completo"
+                      />
+                    </label>
+
+                    {certificateErrorId === course.id ? (
+                      <p className="feedback feedback--error">
+                        Escribe tu nombre antes de descargar el certificado.
+                      </p>
+                    ) : null}
+
+                    {certificateSuccessId === course.id ? (
+                      <p className="feedback">Tu certificado ya se descargo.</p>
+                    ) : null}
+
+                    <div className="course-link-card__actions">
+                      <button
+                        className="button button--secondary"
+                        onClick={() => onOpenCourse(course.id)}
+                      >
+                        Abrir curso
+                      </button>
+                      <button
+                        className="button button--primary"
+                        disabled={certificateBusyId === course.id}
+                        onClick={() => {
+                          void handleDownloadCertificate(course);
+                        }}
+                      >
+                        {certificateBusyId === course.id
+                          ? 'Generando...'
+                          : 'Descargar certificado'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="course-link-card__actions">
+                    <button
+                      className="button button--primary"
+                      onClick={() => onOpenCourse(course.id)}
+                    >
+                      {course.actionLabel}
+                    </button>
+                  </div>
+                )}
+              </article>
             ))}
           </div>
         </article>
